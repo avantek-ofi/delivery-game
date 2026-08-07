@@ -1,12 +1,12 @@
 import data from '../data/neighborhoods.json'
 export type CityZone = { id: string; name: string; zone: string; x: number; y: number; demand: number; routeRisk: number; security: number; saleSize: number; distance: number; risk: 'Bajo' | 'Medio' | 'Alto'; color: string }
 
-// Positions tuned to the illustrated arcade map, not to geographic latitude/longitude.
+// Positions tuned by CABA's real north / west / center / south relation and the arcade landmarks.
 const artPositions: Record<string, [number, number]> = {
-  belgrano: [30, 15], nunez: [37, 11], palermo: [34, 24], colegiales: [39, 19], saavedra: [43, 15], recoleta: [48, 27], retiro: [58, 28],
-  'san-nicolas': [56, 38], monserrat: [55, 46], balvanera: [45, 43], almagro: [40, 47], caballito: [31, 49], flores: [24, 55], floresta: [18, 56], 'villa-del-parque': [22, 39], devoto: [15, 33],
-  boedo: [45, 57], 'parque-patricios': [49, 65], barracas: [60, 72], boca: [76, 68], 'nueva-pompeya': [38, 70], lugano: [30, 81], soldati: [42, 80],
-  'san-telmo': [62, 51], 'puerto-madero': [71, 43],
+  nunez: [32, 11], saavedra: [24, 16], belgrano: [40, 19], colegiales: [38, 26], palermo: [47, 28], recoleta: [56, 27], retiro: [66, 27],
+  devoto: [15, 37], 'villa-del-parque': [22, 33], floresta: [23, 53], flores: [31, 58], caballito: [40, 49], almagro: [47, 43], balvanera: [53, 43],
+  'san-nicolas': [61, 38], monserrat: [62, 47], 'san-telmo': [68, 53], 'puerto-madero': [78, 42],
+  boedo: [49, 58], 'nueva-pompeya': [49, 70], 'parque-patricios': [58, 67], barracas: [69, 70], boca: [79, 76], soldati: [43, 81], lugano: [36, 86],
 }
 
 export const cityZones: CityZone[] = data.map(item => {

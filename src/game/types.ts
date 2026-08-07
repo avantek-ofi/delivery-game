@@ -11,9 +11,18 @@ export type Shipment = {
 }
 
 export type Listing = { productId: string; price: number; quantity: number; platformId: string }
-export type Offer = { id: string; productId: string; platformId: string; quantity: number; amount: number; expiresAt: number; zoneId: string; status: 'pending' | 'accepted' | 'rejected' | 'expired' }
-export type Order = { id: string; offerId: string; productId: string; platformId: string; quantity: number; amount: number; zoneId: string; dueAt: number; status: 'to_prepare' | 'preparing' | 'ready' | 'delivering' | 'delivered'; readyAt?: number; completedAt?: number }
+export type Offer = { id: string; productId: string; platformId: string; quantity: number; amount: number; expiresAt: number; zoneId: string; status: 'pending' | 'accepted' | 'rejected' | 'expired'; buyerName?: string; buyerBudget?: number; buyerPatience?: number; buyerPreference?: string }
+export type Order = { id: string; offerId: string; productId: string; platformId: string; quantity: number; amount: number; zoneId: string; dueAt: number; status: 'to_prepare' | 'preparing' | 'ready' | 'delivering' | 'delivered'; readyAt?: number; completedAt?: number; buyerName?: string }
 export type OrderStats = { completed: number; revenue: number; incidents: number }
+export type CustomerNote = { id: string; buyerName: string; kind: 'review' | 'complaint' | 'recommendation'; rating: number; text: string; createdAt: number; read?: boolean }
+export type ProgressionState = { totalImported: number; totalListings: number; totalDelivered: number; claimedGoals: string[] }
+export type DesktopTheme = 'night' | 'sunset' | 'mint'
+export type StoryCharacterId = 'mara' | 'tadeo' | 'lucia' | 'esteban'
+export type StoryDecision = { chapterId: string; choiceId: string; createdAt: number }
+export type StoryState = { decisions: StoryDecision[]; relationships: Record<StoryCharacterId, number>; routeRiskBonus: number }
+export type DesktopApp = 'supplier' | 'inventory' | 'listings' | 'offers' | 'orders' | 'map' | 'upgrades' | 'vehicles' | 'facility' | 'finance' | 'customers' | 'goals' | 'phone' | 'neighborhood'
+export type MailMessage = { id: string; sender: string; subject: string; body: string[]; read: boolean; createdAt: number; required?: boolean }
+export type OnboardingState = { phase: 'flow' | 'tour' | 'first-mail' | 'done'; tutorialStep: number; unlockedApps: DesktopApp[]; mails: MailMessage[]; research: string[] }
 export type DeliveryIncident = 'none' | 'goods' | 'bike' | 'all'
 export type MarketEvent = { id: string; label: string; description: string; multiplier: number; endsAt: number; tone: 'positive' | 'negative' } | null
 export type DeliveryEvent = { id: string; label: string; description: string; tone: 'positive' | 'warning' } | null
@@ -33,6 +42,12 @@ export type GameState = {
   offers: Offer[]
   orders: Order[]
   orderStats: OrderStats
+  customerNotes: CustomerNote[]
+  progression: ProgressionState
+  story: StoryState
+  onboarding: OnboardingState
+  tutorialEnabled: boolean
+  desktopTheme: DesktopTheme
   lastOfferAt: number
   activeDelivery: ActiveDelivery | null
   activeDeliveries: ActiveDelivery[]

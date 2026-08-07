@@ -1,0 +1,124 @@
+/* Hito 7: tutorial, teléfono, progresión y personalización */
+.tutorial-backdrop {
+  z-index: 90 !important;
+  background: rgba(3, 7, 22, .78) !important;
+  backdrop-filter: blur(4px);
+}
+
+.tutorial-coach {
+  width: min(690px, calc(100vw - 32px));
+  overflow: hidden;
+  border: 3px solid #ffd878;
+  background: linear-gradient(145deg, #172453, #0d1334);
+  box-shadow: 0 18px 0 #050817, 0 0 0 6px rgba(255, 216, 120, .14);
+  color: #f9f4df;
+}
+
+.tutorial-coach header, .tutorial-coach footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: rgba(255, 255, 255, .055);
+}
+
+.tutorial-coach header small { color: #ffd878; letter-spacing: .16em; font-weight: 900; }
+.tutorial-coach header button, .tutorial-coach footer button { min-width: auto; }
+.tutorial-coach > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 18px; }
+.tutorial-coach > div > div { min-height: 142px; padding: 12px; border: 1px solid rgba(255, 255, 255, .12); background: rgba(4, 8, 27, .5); }
+.tutorial-coach b { display: block; margin-bottom: 12px; color: #82e6e3; font-size: 19px; }
+.tutorial-coach p { margin: 0; line-height: 1.45; font-size: 12px; }
+.tutorial-coach p strong { display: block; margin-bottom: 5px; color: #fff3b4; font-size: 14px; }
+
+.tutorial-choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 13px 0 8px;
+  color: #cbd7ff;
+  font-size: 12px;
+  cursor: pointer;
+}
+.tutorial-choice input { accent-color: #62d8d0; }
+
+.phone-desk { min-width: min(850px, 92vw); background: radial-gradient(circle at 80% 5%, #394e98 0, #101634 42%, #090e23 100%); }
+.phone-desk .app-body { min-height: 492px; display: grid; place-items: center; padding: 20px; }
+.phone-shell {
+  position: relative;
+  width: min(358px, 100%);
+  min-height: 475px;
+  padding: 23px 13px 16px;
+  border: 7px solid #040613;
+  border-radius: 34px;
+  background: linear-gradient(145deg, #2b3151, #0d1022 46%, #20284b);
+  box-shadow: 0 0 0 2px #6976a3, 16px 20px 0 rgba(0, 0, 0, .34);
+}
+.phone-shell::before { content: ''; position: absolute; top: 7px; left: 50%; width: 83px; height: 13px; transform: translateX(-50%); border-radius: 0 0 10px 10px; background: #03040b; z-index: 2; }
+.phone-screen { min-height: 430px; padding: 17px 14px; border-radius: 24px; background: linear-gradient(160deg, #202c62, #101739 52%, #1d6b76); color: #f9fbff; }
+.phone-status, .phone-title, .phone-rank, .phone-alert, .phone-themes { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.phone-status { color: #b9d6ff; font-size: 10px; font-weight: 800; }
+.phone-title { margin: 23px 0 13px; }
+.phone-title span { color: #b5c9fc; font-size: 11px; }
+.phone-title strong { color: #fff1a8; }
+.phone-rank { margin-bottom: 13px; padding: 11px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); }
+.phone-rank small { color: #c9d4f7; }
+.phone-rank b { color: #8df1df; font-size: 12px; }
+.phone-notifications { display: grid; gap: 7px; }
+.phone-alert { padding: 9px; border-left: 3px solid #f9cc69; background: rgba(5, 10, 34, .42); font-size: 11px; }
+.phone-alert span { color: #ffe8a4; }
+.phone-alert small { color: #d1dbfb; text-align: right; }
+.phone-message { margin: 13px 2px; color: #d5e4ff; font-size: 11px; line-height: 1.4; }
+.phone-themes { margin-top: 12px; justify-content: flex-start; }
+.phone-themes button { min-width: 0; flex: 1; padding: 8px 5px; border-color: #8ba9d4; font-size: 9px; }
+.phone-themes button.active { background: #f1bf61; color: #15162b; border-color: #fff0a5; }
+
+.fleet-desk { min-width: min(900px, 92vw); }
+.fleet-summary { display: grid; grid-template-columns: 1.2fr .8fr; gap: 12px; margin-bottom: 14px; }
+.fleet-summary > div, .fleet-hint { padding: 12px; border: 1px solid #5a5d85; background: #171b3a; }
+.fleet-summary span, .fleet-hint { color: #aeb9df; font-size: 11px; }
+.fleet-summary strong { display: block; margin-top: 5px; color: #ffdf80; font-size: 16px; }
+.fleet-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+.fleet-card { position: relative; min-height: 188px; padding: 14px; border: 2px solid #3f4977; background: linear-gradient(150deg, #1d2449, #11152f); }
+.fleet-card.owned { border-color: #55bcae; }
+.fleet-card.locked { filter: saturate(.55); opacity: .84; }
+.fleet-card header { display: flex; justify-content: space-between; gap: 7px; color: #ffeaac; }
+.fleet-card header span { color: #9cb2d7; font-size: 11px; }
+.fleet-card dl { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 13px 0; }
+.fleet-card dt { color: #98a8ca; font-size: 10px; }
+.fleet-card dd { margin: 2px 0 0; color: #e7efff; font-size: 12px; }
+.fleet-card .lock-reason { min-height: 28px; color: #ffca8c; font-size: 10px; line-height: 1.3; }
+.fleet-card button { width: 100%; }
+.fleet-hint { margin-top: 13px; border-color: #816837; color: #f7df9c; }
+
+/* El mapa es una superficie posicionada: los barrios deben vivir sobre ella. */
+.dispatch-map .zone-pin {
+  position: absolute !important;
+  display: grid !important;
+  grid-template-columns: 17px max-content;
+  align-items: center;
+  gap: 3px;
+  width: max-content;
+  max-width: 115px;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: none;
+}
+.dispatch-map .zone-pin i { width: 12px; height: 12px; min-width: 12px; box-shadow: 0 0 0 2px rgba(8, 14, 31, .75); }
+.dispatch-map .zone-pin strong { overflow: hidden; color: #fff6d4; font-size: 9px; line-height: 1; white-space: nowrap; text-shadow: 1px 1px 0 #07122b, -1px -1px 0 #07122b; }
+.dispatch-map .zone-pin:hover { transform: translate(-50%, -50%) scale(1.13) !important; }
+
+/* Variantes de escritorio desbloqueables desde el celular. */
+.computer-scene.theme-sunset .computer-wallpaper { background: linear-gradient(135deg, rgba(122, 44, 70, .76), rgba(53, 30, 91, .65)), #27315b url('../assets/buenos-aires-night.png') center/cover no-repeat; }
+.computer-scene.theme-sunset .desktop { --desktop-accent: #f09c72; }
+.computer-scene.theme-mint .computer-wallpaper { background: linear-gradient(135deg, rgba(16, 95, 82, .68), rgba(11, 45, 86, .7)), #27315b url('../assets/buenos-aires-night.png') center/cover no-repeat; }
+.computer-scene.theme-mint .desktop { --desktop-accent: #75e3c5; }
+
+@media (max-width: 720px) {
+  .tutorial-coach > div { grid-template-columns: 1fr; max-height: 50vh; overflow-y: auto; }
+  .tutorial-coach > div > div { min-height: auto; }
+  .fleet-grid { grid-template-columns: 1fr; max-height: 48vh; overflow-y: auto; }
+  .fleet-summary { grid-template-columns: 1fr; }
+}

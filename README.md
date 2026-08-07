@@ -41,6 +41,16 @@ Cada cambio de funcionalidad debe reforzar esta secuencia antes de agregar siste
 
 Esta lista es la fuente de verdad para continuar el proyecto. Al implementar una tarea, marcarla y añadir una nota breve en el historial.
 
+### Hito 0 — Primeros 15 minutos
+
+- [x] Menú de inicio separado con nueva partida, carga, créditos y enlaces externos.
+- [x] Prólogo narrativo: Buenos Aires, $150.000 de ahorros y objetivo de construir un negocio propio.
+- [x] Tutorial en dos partes: ciclo completo de negocio y recorrido contextual por el escritorio.
+- [x] Primer correo obligatorio de Franco; luego se habilita el catálogo inicial de ImportaYa.
+- [x] Inicio con solo Correo, Importar, Inventario, Publicar, Pedidos y Despacho.
+- [x] Desbloqueos progresivos comunicados por correo: Desarrollo, Negociar, Clientes, Finanzas, Flota, Barrio, Objetivos y Celular.
+- [x] Desarrollo dividido en Investigación y Mejoras, con acceso lateral desde Radio Barrio.
+
 ### Hito 1 — Fundamentos visuales y UX
 
 - [x] Persistir posición, tamaño, orden y estado minimizado de ventanas por partida.
@@ -73,40 +83,75 @@ Esta lista es la fuente de verdad para continuar el proyecto. Al implementar una
 
 ### Hito 4 — Economía, clientes y narrativa
 
-- [ ] Añadir volumen, fragilidad, estacionalidad, rotación y devolución a los productos.
-- [ ] Proveedores con calidad, reputación, demora, mínimo de compra y riesgo.
-- [ ] Competencia visible que ajuste precios y sature categorías.
-- [ ] Perfiles de clientes con paciencia, presupuesto, barrio y preferencias.
-- [ ] Reseñas, clientes recurrentes, reclamos y recomendaciones.
-- [ ] Eventos narrativos: vecino con local, tendencia, proveedor, influencer y competidor.
+- [x] Añadir volumen, fragilidad, estacionalidad y rotación a los productos; la devolución queda para la siguiente iteración comercial.
+- [x] Proveedores con calidad, demora, coste y riesgo seleccionables al importar.
+- [x] Competencia visible que compara precio, posicionamiento y rotación antes de publicar.
+- [x] Perfiles de clientes con paciencia, presupuesto, barrio y preferencias de zona.
+- [x] Reseñas, clientes recurrentes, reclamos y recomendaciones visibles en la aplicación Clientes.
+- [x] Eventos de tendencia, proveedor y competencia que modifican demanda, riesgo o tiempos de operación.
 
 ### Hito 5 — CABA y logística
 
-- [ ] Dividir el mapa en distritos visuales con arquitectura y densidad propias.
-- [ ] Incorporar clima, cortes, manifestaciones, atajos y tráfico como decisiones de ruta.
-- [ ] Ordenar paradas de entrega y comparar tiempo, coste, riesgo y energía.
-- [ ] Incidentes interactivos: lluvia, pinchadura, cliente ausente, robo y desvío.
-- [ ] Reparto tercerizado, empleados y mensajería para ampliar la flota actual.
-- [ ] Más hitos geográficos: avenidas, parques, trenes, río y puntos de referencia porteños.
+- [x] Dividir el mapa en distritos Norte, Oeste, Centro y Sur para lectura operativa.
+- [x] Incorporar clima, cortes, manifestaciones, atajos y tráfico como eventos de ruta.
+- [x] Ordenar paradas de entrega y comparar tiempo, coste, riesgo y energía mediante estilos de ruta.
+- [x] Resolver incidentes de ruta con soporte operativo a cambio de capital y tiempo.
+- [x] Añadir mensajero tercerizado como capacidad temporal de despacho desde Base nivel 1.
+- [x] Señalizar Obelisco, Puerto Madero, La Boca y Parque Centenario sobre el mapa de juego.
 
 ### Hito 6 — Progresión y objetivos
 
-- [ ] Cuaderno de objetivos dentro del juego.
-- [ ] Hitos: primera venta, cliente recurrente, cinco publicaciones, estantes y primer empleado.
-- [ ] Desbloqueos: local, depósito, flota y múltiples sucursales.
-- [ ] Reputación con efectos concretos en clientes, proveedores y plataformas.
-- [ ] Balance de late game: operador logístico con varias rutas activas.
+- [x] Cuaderno de objetivos dentro del juego, con alertas y recompensas cobrables.
+- [x] Hitos: primera importación, publicación, entrega, cinco publicaciones, mejora de base, cliente recurrente y flota.
+- [x] Rangos de negocio: tienda emergente, microempresa barrial, centro de despacho y operador logístico.
+- [x] Recompensas de capital, reputación y energía vinculadas a objetivos completados.
+- [x] Progresión de late game preparada para múltiples vehículos y rutas activas.
+
+### Hito 7 — Personalización y expresión
+
+- [x] Centro de gestión en celular: rango, próximos desbloqueos y avisos de mercado.
+- [x] Vehículos desbloqueables por entregas y rango; comprar con capital sin progreso ya no alcanza.
+- [x] Temas de escritorio (Noche porteña, Atardecer y Menta arcade), aplicados sin perder el fondo de juego.
+- [x] Tutorial de arranque opcional y capital inicial de $150.000 para una primera decisión de compra más clara.
+- [ ] Editor de identidad: logo, colores de marca y estilo visible de la tienda.
+- [ ] Personalización visual de base, vehículos, indumentaria y empaques.
+- [ ] Vitrina de logros, coleccionables y trofeos por barrio.
+
+### Hito 8 — Historia barrial y relaciones
+
+- [x] Cuatro capítulos narrativos iniciales: proveedor, vidriera barrial, rutas vecinales y competencia logística.
+- [x] Personajes recurrentes con relación persistente, decisiones guardadas y consecuencias visibles.
+- [x] Aplicación El barrio y Radio Barrio: noticias que conectan historia, demanda, capital y rutas.
+- [ ] Finales de campaña según reputación, capital, clientes y expansión.
+
+### Hito 9 — Minijuegos operativos
+
+- [ ] Empaque contrarreloj con fragilidad, volumen y calidad de presentación.
+- [ ] Negociación de precio con lectura de paciencia y presupuesto.
+- [ ] Desvíos de reparto: elegir calle, resolver incidentes y proteger mercadería.
+- [ ] Desafíos de inventario: organizar estantes y optimizar capacidad.
+
+### Hito 10 — Contenido continuo y calidad
+
+- [ ] Nuevas categorías, proveedores, barrios y eventos de temporada.
+- [ ] Balance telemétrico local y panel de depuración para la economía.
+- [ ] Accesibilidad ampliada, tutorial contextual y guardados versionados.
+- [ ] Pruebas de simulación de economía y rutas para evitar bloqueos de progreso.
 
 ## Arquitectura objetivo
 
 ```text
 src/
-  game/       # economía, tiempo, inventario, ventas, eventos y guardado
-  scenes/     # intro, habitación, computadora, progreso físico y reparto
+  apps/       # aplicaciones de alto nivel: objetivos y futuras apps extraídas
+  progression/ # definiciones de objetivos, recompensas, rangos y desbloqueos
+  story/      # capítulos, personajes, decisiones y efectos narrativos
+  game/       # economía, tiempo, inventario, ventas, eventos, tipos y guardado
+  scenes/     # intro y transiciones de juego
   desktop/    # gestor de ventanas, widgets, taskbar y notificaciones
-  apps/       # correo, navegador, inventario, tienda, pedidos y finanzas
-  map/        # CABA, distritos, rutas, pines y reparto
+  data/       # balance, vehículos, barrios, proveedores y eventos configurables
+  map/        # futura extracción de CABA, distritos, rutas, pines y reparto
   ui/         # botones, paneles, diálogos, tooltips y HUD
+  styles/     # capas visuales por sistema o aplicación
   assets/     # sprites, tiles, fondos, efectos y audio
 ```
 
@@ -129,6 +174,8 @@ Los valores configurables viven en `src/data/`:
 - `events.json`: eventos de mercado y reparto.
 
 ## Desarrollo
+
+El capital inicial actual es **$150.000**. Los barrios se ubican desde `src/game/map.ts` con coordenadas específicas para el arte de CABA; no se usan como una lista lateral.
 
 ```bash
 npm install

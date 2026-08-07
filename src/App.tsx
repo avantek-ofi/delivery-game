@@ -9,6 +9,17 @@ import './styles/facility.css'
 import './styles/dispatch.css'
 import './styles/apps.css'
 import './styles/finance.css'
+import './styles/economy.css'
+import './styles/market.css'
+import './styles/progression.css'
+import './styles/route-planning.css'
+import './styles/incidents.css'
+import './styles/landmarks.css'
+import './styles/goals.css'
+import './styles/hito7.css'
+import './styles/story.css'
+import './styles/onboarding.css'
+import './styles/polish.css'
 
 export default function App() {
   return <Game />

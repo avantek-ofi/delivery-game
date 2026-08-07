@@ -1,6 +1,12 @@
 import type { Category } from './types'
 
-export type SupplierProduct = { id: string; name: string; description: string; priceUsd: number; importFee: number; suggestedPrice: number }
+export type SupplierProduct = { id: string; name: string; description: string; priceUsd: number; importFee: number; suggestedPrice: number; volume: 1 | 2 | 3; fragility: number; seasonality: 'Estable' | 'Tendencia' | 'Estacional'; rotation: 'Lenta' | 'Media' | 'Rapida' }
+export type SupplierProfile = { id: string; name: string; quality: number; delay: number; priceFactor: number; risk: 'Bajo' | 'Medio' | 'Alto'; note: string }
+export const supplierProfiles: SupplierProfile[] = [
+  { id: 'dragon', name: 'Dragon de Bolsillo', quality: 3, delay: 90, priceFactor: 1, risk: 'Medio', note: 'Catalogo amplio y primer envio rapido.' },
+  { id: 'mayorista', name: 'Mayorista Central', quality: 4, delay: 150, priceFactor: .91, risk: 'Bajo', note: 'Mejor costo; requiere planificar la llegada.' },
+  { id: 'trend', name: 'Trend Lab', quality: 5, delay: 220, priceFactor: 1.13, risk: 'Bajo', note: 'Productos de tendencia con mejor terminacion.' }
+]
 export type CategoryInfo = { name: Category; icon: string; tag: string; description: string }
 
 export const categories: CategoryInfo[] = [
@@ -17,13 +23,14 @@ export const categories: CategoryInfo[] = [
 ]
 
 const make = (category: string, rows: Array<[string, string, number, number]>): SupplierProduct[] => rows.flatMap(([id, name, priceUsd, suggestedPrice], index) => {
-  const base = { id: `${category}-${id}`, name, priceUsd, suggestedPrice, importFee: .12 + (index % 4) * .02, description: index % 2 ? 'Buen margen y demanda media.' : 'Liviano y fácil de almacenar.' }
+  const traits = { volume: (1 + index % 3) as 1 | 2 | 3, fragility: index % 3 === 0 ? .02 : index % 3 === 1 ? .08 : .16, seasonality: (index % 3 === 0 ? 'Estable' : index % 3 === 1 ? 'Tendencia' : 'Estacional') as SupplierProduct['seasonality'], rotation: (index % 3 === 0 ? 'Rapida' : index % 3 === 1 ? 'Media' : 'Lenta') as SupplierProduct['rotation'] }
+  const base = { id: `${category}-${id}`, name, priceUsd, suggestedPrice, importFee: .12 + (index % 4) * .02, description: index % 2 ? 'Buen margen y demanda media.' : 'Liviano y fácil de almacenar.', ...traits }
   const variants = [
     { suffix: 'Mini', factor: .72, description: 'Entrada económica; ideal para probar demanda.' },
     { suffix: 'Plus', factor: 1.22, description: 'Versión mejorada con margen más alto.' },
     { suffix: 'Neo', factor: .94, description: 'Edición de temporada; buena para publicaciones nuevas.' }
   ]
-  return [base, ...variants.map((variant, variantIndex) => ({ id: `${category}-${id}-${variant.suffix.toLowerCase()}`, name: `${name} ${variant.suffix}`, priceUsd: Math.max(2, Math.round(priceUsd * variant.factor)), suggestedPrice: Math.round(suggestedPrice * variant.factor * (1.04 + variantIndex * .03)), importFee: .12 + ((index + variantIndex + 1) % 4) * .02, description: variant.description }))]
+  return [base, ...variants.map((variant, variantIndex) => ({ id: `${category}-${id}-${variant.suffix.toLowerCase()}`, name: `${name} ${variant.suffix}`, priceUsd: Math.max(2, Math.round(priceUsd * variant.factor)), suggestedPrice: Math.round(suggestedPrice * variant.factor * (1.04 + variantIndex * .03)), importFee: .12 + ((index + variantIndex + 1) % 4) * .02, description: variant.description, volume: Math.max(1, Math.min(3, traits.volume + (variantIndex === 1 ? 1 : 0))) as 1 | 2 | 3, fragility: Math.min(.22, traits.fragility + variantIndex * .025), seasonality: traits.seasonality, rotation: traits.rotation }))]
 })
 const catalog: Record<Category, SupplierProduct[]> = {
   Tecnología: make('tech', [['cable','Cable Carga Turbo',9,15500],['stand','Soporte Flexi',14,26000],['speaker','Mini Parlante Boom',23,43000],['earbuds','Auriculares Nube',19,36000],['lamp','Lámpara USB Pixel',12,22000],['tracker','Rastreador Llaverito',16,31000]]),

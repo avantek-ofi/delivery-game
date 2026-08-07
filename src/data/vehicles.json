@@ -3,5 +3,6 @@
   { "id": "bici-pro", "name": "Bicicleta mejorada", "price": 120000, "capacity": 3, "speed": 1.35, "maintenance": 800 },
   { "id": "moto", "name": "Moto", "price": 650000, "capacity": 5, "speed": 2.2, "maintenance": 4500 },
   { "id": "auto", "name": "Auto", "price": 1800000, "capacity": 10, "speed": 2.8, "maintenance": 12000 },
+  { "id": "mensajero", "name": "Mensajero tercerizado", "price": 0, "capacity": 3, "speed": 1.5, "maintenance": 8000 },
   { "id": "camioneta", "name": "Camioneta", "price": 4200000, "capacity": 24, "speed": 2.3, "maintenance": 26000 }
 ]
