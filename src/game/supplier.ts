@@ -16,7 +16,15 @@ export const categories: CategoryInfo[] = [
   { name: 'Accesorios', icon: '◇', tag: 'Compra impulsiva', description: 'Productos pequeños fáciles de repartir.' },
 ]
 
-const make = (category: string, rows: Array<[string, string, number, number]>): SupplierProduct[] => rows.map(([id, name, priceUsd, suggestedPrice], index) => ({ id: `${category}-${id}`, name, priceUsd, suggestedPrice, importFee: .12 + (index % 4) * .02, description: index % 2 ? 'Buen margen y demanda media.' : 'Liviano y fácil de almacenar.' }))
+const make = (category: string, rows: Array<[string, string, number, number]>): SupplierProduct[] => rows.flatMap(([id, name, priceUsd, suggestedPrice], index) => {
+  const base = { id: `${category}-${id}`, name, priceUsd, suggestedPrice, importFee: .12 + (index % 4) * .02, description: index % 2 ? 'Buen margen y demanda media.' : 'Liviano y fácil de almacenar.' }
+  const variants = [
+    { suffix: 'Mini', factor: .72, description: 'Entrada económica; ideal para probar demanda.' },
+    { suffix: 'Plus', factor: 1.22, description: 'Versión mejorada con margen más alto.' },
+    { suffix: 'Neo', factor: .94, description: 'Edición de temporada; buena para publicaciones nuevas.' }
+  ]
+  return [base, ...variants.map((variant, variantIndex) => ({ id: `${category}-${id}-${variant.suffix.toLowerCase()}`, name: `${name} ${variant.suffix}`, priceUsd: Math.max(2, Math.round(priceUsd * variant.factor)), suggestedPrice: Math.round(suggestedPrice * variant.factor * (1.04 + variantIndex * .03)), importFee: .12 + ((index + variantIndex + 1) % 4) * .02, description: variant.description }))]
+})
 const catalog: Record<Category, SupplierProduct[]> = {
   Tecnología: make('tech', [['cable','Cable Carga Turbo',9,15500],['stand','Soporte Flexi',14,26000],['speaker','Mini Parlante Boom',23,43000],['earbuds','Auriculares Nube',19,36000],['lamp','Lámpara USB Pixel',12,22000],['tracker','Rastreador Llaverito',16,31000]]),
   Ropa: make('clothes', [['cap','Gorra Bordada',5,9000],['shirt','Remera Gráfica',8,15000],['bag','Riñonera Urbana',11,21000],['socks','Medias Galácticas',4,7500],['hoodie','Buzo Nube',18,34000],['belt','Cinto Modular',7,13500]]),
@@ -31,4 +39,5 @@ const catalog: Record<Category, SupplierProduct[]> = {
 }
 
 export const getInitialProducts = (category: Category) => catalog[category]
+export const getSupplierSelection = (category: Category, count = 14) => [...catalog[category]].sort(() => Math.random() - .5).slice(0, count)
 export const randomCategories = (count = 3) => [...categories].sort(() => Math.random() - .5).slice(0, count)

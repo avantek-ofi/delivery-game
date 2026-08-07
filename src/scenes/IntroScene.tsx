@@ -1,0 +1,2 @@
+import { useState, type ReactNode } from 'react'
+export function IntroScene({ children }: { children: ReactNode }) { const [step, setStep] = useState(0); const lines = ['Buenos Aires.', 'Tenes $150.000.', 'Son tus ahorros.', 'Y necesitas hacerlos rendir.', 'Todo empieza con una idea.']; if (step < lines.length) return <main className="intro-scene"><p>{lines[step]}</p><button onClick={() => setStep(step + 1)}>{step === lines.length - 1 ? 'CONTINUAR' : 'SEGUIR'}</button></main>; return <>{children}</> }
