@@ -1,0 +1,13 @@
+services:
+  delivery-game:
+    build: .
+    container_name: delivery-game
+    restart: unless-stopped
+
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+    name: db_default
