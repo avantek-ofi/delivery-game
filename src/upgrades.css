@@ -1,0 +1,11 @@
+.upgrade-grid { display: grid; gap: 12px; padding: 8px 24px 24px; }
+.upgrade-grid article { display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; padding: 16px; border: 1px solid #c8d8e6; border-radius: 10px; background: #fafdff; }
+.upgrade-grid article > i { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 8px; color: #fff; background: #657fb5; font-size: 21px; font-style: normal; }
+.upgrade-grid small { color: #71809a; font: 9px 'DM Mono', monospace; }
+.upgrade-grid h3 { margin: 3px 0; color: #344362; }
+.upgrade-grid p { margin: 0; color: #6e7b8e; font-size: 12px; }
+.upgrade-grid button { padding: 10px 12px; border: 0; border-radius: 6px; color: #fff; background: #ee7658; font-weight: 700; }
+.upgrade-grid button:disabled { color: #8993a0; background: #dde3e8; cursor: not-allowed; }
+.level-dots { display: flex; gap: 4px; margin-top: 9px; }
+.level-dots b { width: 24px; height: 5px; border-radius: 5px; background: #dbe2e9; }
+.level-dots b.active { background: #f2b94f; }

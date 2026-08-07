@@ -1,0 +1,6 @@
+[
+  { "zone": "flores", "name": "Galería Florencia", "categories": ["Ropa"], "discount": 0.18 },
+  { "zone": "almagro", "name": "Once y Pico", "categories": ["Ropa", "Hogar"], "discount": 0.15 },
+  { "zone": "belgrano", "name": "Barrio Chino Express", "categories": ["Hogar", "Tecnología"], "discount": 0.12 },
+  { "zone": "caballito", "name": "Mayorista Central", "categories": ["Tecnología", "Hogar"], "discount": 0.08 }
+]

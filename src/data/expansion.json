@@ -1,0 +1,6 @@
+{
+  "employees":["ventas","preparación","reparto","compras"],
+  "locations":["casa","local","depósito","sucursal"],
+  "thirdPartyServices":["almacenamiento","publicación","preparación","entrega","devoluciones"],
+  "marketplaces":["Mercado Chango","La Vidriera","Caralibro Market","Tienda Directa"]
+}
