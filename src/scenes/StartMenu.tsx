@@ -1,6 +1,6 @@
 export function StartMenu({ hasSave, onNew, onLoad, onCredits }: { hasSave: boolean; onNew: () => void; onLoad: () => void; onCredits: () => void }) {
   return <main className="start-scene">
-    <div className="start-sky"><i className="start-moon"></i><i className="start-building building-one"></i><i className="start-building building-two"></i><i className="start-building building-three"></i></div>
+    <div className="start-sky"></div>
     <section className="start-menu">
       <small>BUENOS AIRES - 2026</small>
       <h1>REBUSQUE</h1>
@@ -11,7 +11,7 @@ export function StartMenu({ hasSave, onNew, onLoad, onCredits }: { hasSave: bool
       </div>
       <button className="credits-link" onClick={onCredits}>CRÉDITOS</button>
     </section>
-    <nav className="start-socials" aria-label="Enlaces del proyecto"><a href="https://github.com/" target="_blank" rel="noreferrer">GH</a><a href="https://www.linkedin.com/" target="_blank" rel="noreferrer">in</a><a href="https://example.com/" target="_blank" rel="noreferrer">WEB</a></nav>
+    <nav className="start-socials" aria-label="Enlaces del proyecto"><a href="https://github.com/Zenitroc" target="_blank" rel="noreferrer">GH</a><a href="https://www.linkedin.com/in/francocortinez/" target="_blank" rel="noreferrer">in</a><a href="https://www.avantek.com.ar" target="_blank" rel="noreferrer">WEB</a></nav>
   </main>
 }
 
@@ -29,5 +29,5 @@ export function OpeningStory({ onContinue }: { onContinue: () => void }) {
 }
 
 export function Credits({ onClose }: { onClose: () => void }) {
-  return <div className="modal-backdrop credits-backdrop"><section className="credits-card"><header><small>CRÉDITOS</small><button onClick={onClose}>X</button></header><h2>REBUSQUE</h2><p>Diseño, desarrollo y producción: proyecto independiente.</p><p>Arte y sistemas: pixel-art, economía, logística y narrativa barrial.</p><footer>Hecho en Buenos Aires para aprender a crecer sin perder el barrio.</footer></section></div>
+  return <div className="modal-backdrop credits-backdrop"><section className="credits-card"><header><small>CRÉDITOS</small><button onClick={onClose}>X</button></header><h2>REBUSQUE</h2><p>Proyecto planificado y desarrollado por <strong>Tec. Franco M. Cortinez</strong>.</p><p>Organización: <strong>Avantek</strong>.</p><footer>Hecho en Buenos Aires para aprender a crecer sin perder el barrio.</footer></section></div>
 }
