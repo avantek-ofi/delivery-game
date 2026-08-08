@@ -2,7 +2,7 @@ export function StartMenu({ hasSave, onNew, onLoad, onCredits }: { hasSave: bool
   return <main className="start-scene">
     <div className="start-sky"><i className="start-moon"></i><i className="start-building building-one"></i><i className="start-building building-two"></i><i className="start-building building-three"></i></div>
     <section className="start-menu">
-      <small>BUENOS AIRES · 2026</small>
+      <small>BUENOS AIRES - 2026</small>
       <h1>REBUSQUE</h1>
       <p>Un tycoon de reventa, barrio y logística.</p>
       <div className="start-actions">
@@ -18,12 +18,12 @@ export function StartMenu({ hasSave, onNew, onLoad, onCredits }: { hasSave: bool
 export function OpeningStory({ onContinue }: { onContinue: () => void }) {
   return <main className="opening-scene">
     <section className="opening-card">
-      <small>BUENOS AIRES · LUNES, 08:00</small>
+      <small>BUENOS AIRES - LUNES, 08:00</small>
       <h1>Todo empieza con tus ahorros.</h1>
       <p>Tenés <strong>$150.000</strong>. Es lo que pudiste guardar después de años de trabajos cortos, cuentas ajustadas y promesas de que el mes que viene iba a ser distinto.</p>
       <p>Vas a convertir una pieza, un celular y una bici en un negocio de reventa. Comprá bien, cumplí con la gente y hacete un nombre barrio por barrio.</p>
       <p className="opening-note">No hay atajos mágicos: hay decisiones, pedidos y una ciudad entera para aprender a recorrer.</p>
-      <button className="primary" onClick={onContinue}>ABRIR MI NEGOCIO →</button>
+      <button className="primary" onClick={onContinue}>ABRIR MI NEGOCIO &gt;</button>
     </section>
   </main>
 }
