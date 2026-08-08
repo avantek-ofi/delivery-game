@@ -27,6 +27,7 @@ import { applyProgressUnlocks, importaYaMail, starterApps, starterMail } from '.
 import { GrowthDesk } from '../apps/GrowthDesk'
 
 const initialMinutes = 8 * 60
+const defaultBrand = { logo: 'R', primary: '#d85a50', accent: '#f3c667', baseStyle: 'clasica' as const, vehicleStyle: 'clasico' as const, outfitStyle: 'repartidor' as const, packageStyle: 'kraft' as const }
 
 export default function Game() {
   useRetroWindowDrag()
@@ -38,6 +39,7 @@ export default function Game() {
   const [categoryChoices] = useState<CategoryInfo[]>(() => randomCategories())
   const [category, setCategory] = useState<Category>(() => categoryChoices[0].name)
   const [tutorialEnabled, setTutorialEnabled] = useState(true)
+  const [baseZoneId, setBaseZoneId] = useState(() => cityZones[0].id)
   const [notice, setNotice] = useState('')
   const [openApp, setOpenApp] = useState<'supplier' | 'inventory' | 'listings' | 'offers' | 'orders' | 'map' | 'upgrades' | 'vehicles' | 'facility' | 'finance' | 'customers' | 'goals' | 'phone' | 'neighborhood' | null>(null)
   const [mailOpen, setMailOpen] = useState(false)
@@ -117,6 +119,18 @@ export default function Game() {
 
   useEffect(() => {
     if (!game) return
+    const interval = 14 * 24 * 60
+    const lastRentAt = game.lastRentAt ?? game.gameMinutes
+    const cycles = Math.floor((game.gameMinutes - lastRentAt) / interval)
+    if (cycles < 1) return
+    const zone = findZone(game.baseZoneId ?? cityZones[0].id)
+    const total = zone.rent * cycles
+    setGame(current => current && ({ ...current, capital: current.capital - total, lastRentAt: lastRentAt + cycles * interval }))
+    setNotice(`ALQUILER: se debitó $${total.toLocaleString('es-AR')} por ${cycles === 1 ? 'la quincena' : cycles + ' quincenas'} de sede en ${zone.name}.`)
+  }, [game?.gameMinutes, game?.lastRentAt, game?.baseZoneId])
+
+  useEffect(() => {
+    if (!game) return
     const id = window.setTimeout(() => saveGame(game), 350)
     return () => clearTimeout(id)
   }, [game])
@@ -192,15 +206,26 @@ export default function Game() {
     const cleanName = storeName.trim()
     if (!cleanName) { setNotice('Elegí un nombre para tu tienda antes de continuar.'); return }
     setGame({ storeName: cleanName, category, gameMinutes: initialMinutes, speed: 0, createdAt: new Date().toISOString(), capital: balance.initialCapital, dollarRate: balance.initialDollarRate, shipments: [], inventory: {}, listings: [], offers: [], orders: [], orderStats: { completed: 0, revenue: 0, incidents: 0 }, customerNotes: [], progression: { totalImported: 0, totalListings: 0, totalDelivered: 0, claimedGoals: [] }, story: { decisions: [], relationships: { mara: 0, tadeo: 0, lucia: 0, esteban: 0 }, routeRiskBonus: 0 }, onboarding: { phase: 'flow', tutorialStep: 0, unlockedApps: starterApps, mails: [starterMail(initialMinutes)], research: [] }, tutorialEnabled: true, desktopTheme: 'night', lastOfferAt: initialMinutes, activeDelivery: null, activeDeliveries: [], reputation: 0, energy: 100, bicycleAvailable: true, marketEvent: null, lastMarketEventAt: initialMinutes, automation: { salesBot: 0, autoPacking: 0, marketing: 0 }, facility: { level: 0, storage: 0, packing: 0, dispatch: 0 }, ownedVehicles: ['bici'], activeVehicleId: 'bici' })
+    setGame(current => current && ({ ...current, baseZoneId, brand: defaultBrand, lastRentAt: initialMinutes }))
     setHasSave(true)
     setNotice('TENÉS 1 CORREO NUEVO')
   }
 
   if (!game && startScreen === 'menu') return <><StartMenu hasSave={hasSave} onNew={() => setStartScreen('story')} onLoad={() => setGame(loadGame())} onCredits={() => setCreditsOpen(true)} />{creditsOpen && <Credits onClose={() => setCreditsOpen(false)} />}</>
   if (!game && startScreen === 'story') return <OpeningStory onContinue={() => setStartScreen('setup')} />
-  if (!game) return <Setup storeName={storeName} setStoreName={setStoreName} category={categoryChoices.some(item => item.name === category) ? category : categoryChoices[0].name} setCategory={setCategory} choices={categoryChoices} tutorialEnabled={tutorialEnabled} setTutorialEnabled={setTutorialEnabled} notice={notice} onCreate={createGame} hasSave={hasSave} onLoad={() => setGame(loadGame())} />
+  if (!game) return <><SetupV2 storeName={storeName} setStoreName={setStoreName} category={categoryChoices.some(item => item.name === category) ? category : categoryChoices[0].name} setCategory={setCategory} choices={categoryChoices} tutorialEnabled={tutorialEnabled} setTutorialEnabled={setTutorialEnabled} baseZoneId={baseZoneId} setBaseZoneId={setBaseZoneId} notice={notice} onCreate={createGame} hasSave={hasSave} onLoad={() => setGame(loadGame())} /><RentPreview zoneId={baseZoneId} /></>
   const restart = () => { if (window.confirm('¿Reiniciar la partida? Se eliminará el guardado actual.')) { clearGame(); setGame(null); setHasSave(false); setOpenApp(null); setMailOpen(false); setMailRead(false) } }
   return <Office game={game} setGame={setGame} onSave={() => { saveGame(game); setNotice('Partida guardada en este navegador.'); window.setTimeout(() => setNotice(''), 2400) }} notice={notice} openApp={openApp} setOpenApp={setOpenApp} mailOpen={mailOpen} setMailOpen={setMailOpen} mailRead={mailRead} setMailRead={setMailRead} onRestart={restart} />
+}
+
+function RentPreview({ zoneId }: { zoneId: string }) {
+  const zone = findZone(zoneId)
+  return <aside className="rent-preview"><small>ALQUILER DE SEDE · CADA 2 SEMANAS</small><strong>${zone.rent.toLocaleString('es-AR')}</strong><span>{zone.name} · demanda x{zone.demand.toFixed(2)} · riesgo {zone.risk}</span></aside>
+}
+
+function SetupV2(props: { storeName: string; setStoreName: (value: string) => void; category: Category; setCategory: (value: Category) => void; choices: CategoryInfo[]; tutorialEnabled: boolean; setTutorialEnabled: (value: boolean) => void; baseZoneId: string; setBaseZoneId: (value: string) => void; notice: string; onCreate: () => void; hasSave: boolean; onLoad: () => void }) {
+  const zone = findZone(props.baseZoneId)
+  return <IntroScene><main className="new-game-shell"><section className="new-game-window setup-v2"><header><span>NUEVA PARTIDA.EXE</span><span>_ X</span></header><div className="new-game-content"><p className="command">C:\\USERS\\VOS&gt; iniciar_emprendimiento</p><h1>Tu tienda arranca hoy.</h1><p>Elegí el rubro y el barrio donde vas a abrir tu primera sede.</p><label className="field"><span>NOMBRE DE LA TIENDA</span><input autoFocus maxLength={28} value={props.storeName} onChange={event => props.setStoreName(event.target.value)} placeholder="Ej. La Esquina Importa" /></label><div className="category-heading"><span>PRIMER RUBRO</span><small>podés ampliar más adelante</small></div><div className="categories">{props.choices.map(item => <button className={props.category === item.name ? 'category-card selected' : 'category-card'} key={item.name} onClick={() => props.setCategory(item.name)}><i>{item.icon}</i><strong>{item.name}</strong><small>{item.tag}</small></button>)}</div><div className="setup-zone-heading"><span>SEDE INICIAL</span><small>{zone.name} · riesgo {zone.risk} · demanda {zone.demand}</small></div><div className="setup-zone-grid">{cityZones.map(item => <button key={item.id} className={props.baseZoneId === item.id ? 'setup-zone selected' : 'setup-zone'} onClick={() => props.setBaseZoneId(item.id)}><i style={{ background: item.color }}></i><strong>{item.name}</strong><small>{item.zone} · {item.risk}</small></button>)}</div>{props.notice && <p className="warning">{props.notice}</p>}<label className="tutorial-choice"><input type="checkbox" checked={props.tutorialEnabled} onChange={event => props.setTutorialEnabled(event.target.checked)} /> Mostrar tutorial guiado al iniciar</label><button className="pixel-button" onClick={props.onCreate}>CREAR TIENDA EN {zone.name.toUpperCase()}</button>{props.hasSave && <button className="load-link" onClick={props.onLoad}>Cargar partida guardada</button>}</div></section></main></IntroScene>
 }
 
 function Setup(props: { storeName: string; setStoreName: (value: string) => void; category: Category; setCategory: (value: Category) => void; choices: CategoryInfo[]; tutorialEnabled: boolean; setTutorialEnabled: (value: boolean) => void; notice: string; onCreate: () => void; hasSave: boolean; onLoad: () => void }) {
@@ -258,6 +283,7 @@ function Office({ game, setGame, onSave, notice, openApp, setOpenApp, mailOpen, 
   const claimableGoals = getObjectives(game).filter(goal => goal.complete && !game.progression.claimedGoals.includes(goal.id)).length
   const pendingStories = getStoryChapters(game).filter(chapter => chapter.available).length
   const unreadMails = game.onboarding.mails.filter(mail => !mail.read).length
+  const brand = game.brand ?? defaultBrand
   const appForLabel: Record<string, DesktopApp> = { Importar: 'supplier', Inventario: 'inventory', Publicar: 'listings', Negociar: 'offers', Pedidos: 'orders', Despacho: 'map', Base: 'facility', Finanzas: 'finance', Clientes: 'customers', Barrio: 'neighborhood', Objetivos: 'goals', Flota: 'vehicles', Celular: 'phone', Mejoras: 'upgrades' }
   const tutorialTargets = game.onboarding.phase === 'tour' ? game.onboarding.tutorialStep === 1 ? ['Correo', 'Importar', 'Inventario'] : game.onboarding.tutorialStep === 2 ? ['Publicar', 'Pedidos', 'Despacho'] : [] : []
   const apps: Array<[string, string, () => void, number?]> = [
@@ -278,9 +304,10 @@ function Office({ game, setGame, onSave, notice, openApp, setOpenApp, mailOpen, 
     ['+', 'Mejoras', () => setOpenApp('upgrades')]
   ]
   const visibleApps = apps.filter(([, label]) => label === 'Correo' || game.onboarding.unlockedApps.includes(appForLabel[label]))
-  return <main className={`computer-scene theme-${game.desktopTheme} ${game.onboarding.research.includes('suppliers') ? 'suppliers-unlocked' : ''}`}>
+  return <main className={`computer-scene theme-${game.desktopTheme} ${game.onboarding.research.includes('suppliers') ? 'suppliers-unlocked' : ''}`} data-base-style={brand.baseStyle} data-vehicle-style={brand.vehicleStyle} data-package-style={brand.packageStyle} style={{ '--brand-main': brand.primary, '--brand-accent': brand.accent } as React.CSSProperties}>
     <header className="computer-top"><span>CENTRO OPERATIVO v0.2</span><span>{game.storeName.toUpperCase()} · BUENOS AIRES</span></header>
     <section className="computer-wallpaper" data-store={game.storeName.toUpperCase()}>
+      <div className="brand-badge"><i>{brand.logo}</i><span><b>{game.storeName}</b><small>SEDE: {findZone(game.baseZoneId ?? cityZones[0].id).name} · ALQ. ${findZone(game.baseZoneId ?? cityZones[0].id).rent.toLocaleString('es-AR')}</small></span></div>
       <div className="desktop-icons">{visibleApps.map(([icon, label, action, alert]) => <DesktopIcon key={label} icon={icon} label={label} alert={alert} highlighted={tutorialTargets.includes(label)} disabled={game.onboarding.phase === 'first-mail' && label !== 'Correo'} onClick={action} />)}</div>
       <p className="desktop-guide">FLUJO: IMPORTAR → PUBLICAR → NEGOCIAR → PREPARAR → DESPACHAR</p>
       <DesktopWidgets game={game} onOpenGrowth={() => setOpenApp('upgrades')} />
@@ -293,7 +320,7 @@ function Office({ game, setGame, onSave, notice, openApp, setOpenApp, mailOpen, 
     {openApp === 'inventory' && <InventoryDesk game={game} onClose={() => setOpenApp(null)} />}
     {openApp === 'listings' && <PublishingDesk game={game} setGame={setGame} onClose={() => setOpenApp(null)} />}
     {openApp === 'offers' && <NegotiationDesk game={game} setGame={setGame} onClose={() => setOpenApp(null)} />}
-    {openApp === 'orders' && <OrderCenter game={game} setGame={setGame} onClose={() => setOpenApp(null)} />}
+    {openApp === 'orders' && <OrderCenterV2 game={game} setGame={setGame} onClose={() => setOpenApp(null)} />}
     {openApp === 'map' && <DispatchWindow game={game} setGame={setGame} onClose={() => setOpenApp(null)} />}
     {openApp === 'facility' && <FacilityWindow game={game} setGame={setGame} onClose={() => setOpenApp(null)} />}
     {openApp === 'finance' && <FinanceDesk game={game} onClose={() => setOpenApp(null)} />}
@@ -483,6 +510,40 @@ function OrderCenter({ game, setGame, onClose }: { game: GameState; setGame: Rea
   const label = (status: Order['status']) => status === 'to_prepare' ? 'Por preparar' : status === 'preparing' ? 'Empaquetando' : status === 'ready' ? 'Listo para despacho' : status === 'delivering' ? 'En reparto' : 'Entregado'
   const shown = tab === 'active' ? active : history
   return <div className="modal-backdrop"><section className="supplier-window order-center"><header><div><small>OPERACION Y TRAZABILIDAD</small><h2>Pedidos</h2></div><button onClick={onClose}>X</button></header><section className="order-dashboard"><article><small>ACTIVOS</small><strong>{active.length}</strong><span>requieren seguimiento</span></article><article><small>COMPLETADOS</small><strong>{game.orderStats.completed}</strong><span>acumulados</span></article><article><small>COBRADO</small><strong>${game.orderStats.revenue.toLocaleString('es-AR')}</strong><span>luego de comisiones</span></article><article><small>INCIDENTES</small><strong>{game.orderStats.incidents}</strong><span>acumulados</span></article></section><div className="order-tabs"><button className={tab === 'active' ? 'active' : ''} onClick={() => setTab('active')}>Pedidos activos <b>{active.length}</b></button><button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>Historial mensual <b>{history.length}</b></button></div><p className="order-note">{tab === 'active' ? 'Los pedidos listos siguen acá hasta que los asignes a una ruta desde Despacho.' : 'Las entregas se conservan durante 30 días de juego; después queda solo su impacto en las estadísticas.'}</p>{shown.length ? <div className="order-board">{shown.map(order => { const product = getInitialProducts(game.category).find(item => item.id === order.productId); const zone = findZone(order.zoneId); return <article key={order.id}><ProductSprite productId={order.productId} label={product?.name} /><div><small>{zone.name.toUpperCase()} · ${order.amount.toLocaleString('es-AR')} c/u</small><strong>{order.quantity} u. de {product?.name}</strong><span>{tab === 'history' ? `Entregado día ${Math.floor((order.completedAt ?? order.dueAt) / 1440) + 1}` : `Vence día ${Math.floor(order.dueAt / 1440) + 1}`}</span></div><b className={`order-chip ${order.status}`}>{label(order.status)}</b>{order.status === 'to_prepare' && <button className="primary" onClick={() => prepare(order)}>PREPARAR</button>}</article> })}</div> : <div className="empty-state order-empty"><strong>{tab === 'active' ? 'No hay pedidos activos.' : 'Todavía no hay entregas en el historial.'}</strong><span>{tab === 'active' ? 'Aceptá una oferta o espera una compra directa.' : 'Las entregas realizadas aparecerán acá durante un mes de juego.'}</span></div>}</section></div>
+}
+
+function OrderCenterV2({ game, setGame, onClose }: { game: GameState; setGame: React.Dispatch<React.SetStateAction<GameState | null>>; onClose: () => void }) {
+  const [tab, setTab] = useState<'active' | 'history'>('active')
+  const active = game.orders.filter(order => order.status !== 'delivered')
+  const history = game.orders.filter(order => order.status === 'delivered').sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0))
+  const shown = tab === 'active' ? active : history
+  const prepare = (order: Order) => setGame(current => current && ({ ...current, orders: current.orders.map(item => item.id === order.id ? { ...item, status: 'preparing', readyAt: current.gameMinutes + balance.preparationMinutes / (1 + current.facility.packing * .2) } : item) }))
+  const reject = (order: Order) => setGame(current => {
+    if (!current || order.status !== 'to_prepare') return current
+    return { ...current, inventory: { ...current.inventory, [order.productId]: (current.inventory[order.productId] ?? 0) + order.quantity }, orders: current.orders.filter(item => item.id !== order.id) }
+  })
+  const statusLabel = (status: Order['status']) => status === 'to_prepare' ? 'Por preparar' : status === 'preparing' ? 'Empaquetando' : status === 'ready' ? 'Listo para despacho' : status === 'delivering' ? 'En reparto' : 'Entregado'
+  const remaining = (order: Order) => {
+    const days = Math.ceil(Math.max(0, order.dueAt - game.gameMinutes) / 1440)
+    return days ? `Vence en ${days} dia${days === 1 ? '' : 's'}` : 'Vencido'
+  }
+  const packing = (order: Order) => {
+    if (order.status !== 'preparing' || !order.readyAt) return 0
+    const duration = balance.preparationMinutes / (1 + game.facility.packing * .2)
+    return Math.min(100, Math.max(0, Math.round((1 - (order.readyAt - game.gameMinutes) / duration) * 100)))
+  }
+  return <div className="modal-backdrop"><section className="supplier-window order-center">
+    <header><div><small>OPERACION Y TRAZABILIDAD</small><h2>Pedidos</h2></div><button onClick={onClose}>X</button></header>
+    <section className="order-dashboard"><article><small>ACTIVOS</small><strong>{active.length}</strong><span>requieren seguimiento</span></article><article><small>COMPLETADOS</small><strong>{game.orderStats.completed}</strong><span>acumulados</span></article><article><small>COBRADO</small><strong>${game.orderStats.revenue.toLocaleString('es-AR')}</strong><span>luego de comisiones</span></article><article><small>INCIDENTES</small><strong>{game.orderStats.incidents}</strong><span>acumulados</span></article></section>
+    <div className="order-tabs"><button className={tab === 'active' ? 'active' : ''} onClick={() => setTab('active')}>Pedidos activos <b>{active.length}</b></button><button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>Historial mensual <b>{history.length}</b></button></div>
+    <p className="order-note">{tab === 'active' ? 'Prepará los pedidos o rechazalos para liberar el stock. Los listos se asignan desde Despacho.' : 'Las entregas se conservan durante 30 días de juego; después queda solo su impacto en las estadísticas.'}</p>
+    {shown.length ? <div className="order-board">{shown.map(order => {
+      const product = getInitialProducts(game.category).find(item => item.id === order.productId)
+      const zone = findZone(order.zoneId)
+      const progress = packing(order)
+      return <article key={order.id}><ProductSprite productId={order.productId} label={product?.name} /><div><small>{zone.name.toUpperCase()} · ${order.amount.toLocaleString('es-AR')} c/u</small><strong>{order.quantity} u. de {product?.name}</strong><span>{tab === 'history' ? `Entregado dia ${Math.floor((order.completedAt ?? order.dueAt) / 1440) + 1}` : remaining(order)}</span>{order.status === 'preparing' && <div className="packing-live"><span>Empaquetando {progress}%</span><i><b style={{ width: `${progress}%` }}></b></i></div>}</div><b className={`order-chip ${order.status}`}>{statusLabel(order.status)}</b>{order.status === 'to_prepare' && <div className="order-actions"><button className="primary" onClick={() => prepare(order)}>PREPARAR</button><button className="order-reject" onClick={() => reject(order)}>RECHAZAR</button></div>}</article>
+    })}</div> : <div className="empty-state order-empty"><strong>{tab === 'active' ? 'No hay pedidos activos.' : 'Todavía no hay entregas en el historial.'}</strong><span>{tab === 'active' ? 'Aceptá una oferta o esperá una compra directa.' : 'Las entregas realizadas aparecerán acá durante un mes de juego.'}</span></div>}
+  </section></div>
 }
 
 function OffersWindow({ game, setGame, onClose }: { game: GameState; setGame: React.Dispatch<React.SetStateAction<GameState | null>>; onClose: () => void }) {

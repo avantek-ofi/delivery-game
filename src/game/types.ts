@@ -17,6 +17,7 @@ export type OrderStats = { completed: number; revenue: number; incidents: number
 export type CustomerNote = { id: string; buyerName: string; kind: 'review' | 'complaint' | 'recommendation'; rating: number; text: string; createdAt: number; read?: boolean }
 export type ProgressionState = { totalImported: number; totalListings: number; totalDelivered: number; claimedGoals: string[] }
 export type DesktopTheme = 'night' | 'sunset' | 'mint'
+export type BrandStyle = { logo: string; primary: string; accent: string; baseStyle: 'clasica' | 'neon' | 'taller'; vehicleStyle: 'clasico' | 'racing' | 'neon'; outfitStyle: 'repartidor' | 'urbano' | 'premium'; packageStyle: 'kraft' | 'color' | 'premium' }
 export type StoryCharacterId = 'mara' | 'tadeo' | 'lucia' | 'esteban'
 export type StoryDecision = { chapterId: string; choiceId: string; createdAt: number }
 export type StoryState = { decisions: StoryDecision[]; relationships: Record<StoryCharacterId, number>; routeRiskBonus: number }
@@ -48,6 +49,8 @@ export type GameState = {
   onboarding: OnboardingState
   tutorialEnabled: boolean
   desktopTheme: DesktopTheme
+  baseZoneId?: string
+  brand?: BrandStyle
   lastOfferAt: number
   activeDelivery: ActiveDelivery | null
   activeDeliveries: ActiveDelivery[]
@@ -56,6 +59,7 @@ export type GameState = {
   bicycleAvailable: boolean
   marketEvent: MarketEvent
   lastMarketEventAt: number
+  lastRentAt?: number
   automation: AutomationState
   facility: FacilityState
   ownedVehicles: string[]
