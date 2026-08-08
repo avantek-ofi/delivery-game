@@ -1,0 +1,10 @@
+.radio-player { position: absolute; z-index: 6; right: 18px; bottom: 16px; width: min(310px, calc(100% - 36px)); padding: 8px 10px; border: 3px solid #f8dd86; background: #182249ef; color: #fff5ca; box-shadow: 5px 5px #10162f; font: 11px monospace; }
+.radio-player .radio-signal { display: block; color: #8fe8d0; font-size: 10px; letter-spacing: .12em; }
+.radio-player strong { display: block; overflow: hidden; margin: 4px 0; white-space: nowrap; text-overflow: ellipsis; color: #ffe296; }
+.radio-controls { display: flex; align-items: center; gap: 5px; }
+.radio-controls button { border: 1px solid #ffd978; background: #47598d; color: #fff5cd; font: 11px monospace; }
+.radio-controls label { display: flex; align-items: center; gap: 3px; margin-left: auto; font-size: 9px; }
+.radio-controls input { width: 72px; accent-color: #e86b56; }
+.tutorial-overlay .tutorial-card main::after { content: 'ALQUILER: tu sede se debita automáticamente cada 2 semanas. Reservá capital para pagarlo.'; display: block; margin-top: 14px; padding: 8px; border: 2px solid #c98462; background: #2a2247; color: #ffe09a; font-size: 11px; line-height: 1.35; }
+.intro-scene + .rent-preview { display: none; }
+@media (max-width: 760px) { .radio-player { right: 10px; bottom: 10px; } .radio-controls input { width: 52px; } }

@@ -16,6 +16,7 @@ import { DesktopWidgets } from '../desktop/DesktopWidgets'
 import { useRetroWindowDrag } from '../desktop/useRetroWindowDrag'
 import { ProductSprite } from '../ui/ProductSprite'
 import { AccessibilityControls } from '../desktop/AccessibilityControls'
+import { Radio } from '../desktop/Radio'
 import { GoalsDesk } from '../apps/GoalsDesk'
 import { FleetDesk } from '../apps/FleetDesk'
 import { PhoneDesk } from '../apps/PhoneDesk'
@@ -312,6 +313,7 @@ function Office({ game, setGame, onSave, notice, openApp, setOpenApp, mailOpen, 
       <p className="desktop-guide">FLUJO: IMPORTAR → PUBLICAR → NEGOCIAR → PREPARAR → DESPACHAR</p>
       <DesktopWidgets game={game} onOpenGrowth={() => setOpenApp('upgrades')} />
       <AccessibilityControls />
+      <Radio />
     </section>
     <Taskbar game={game} setSpeed={speed => { if (game.onboarding.phase !== 'done') return; setGame(current => current && { ...current, speed }) }} />
     <OnboardingGuide game={game} setGame={setGame} onComplete={() => setMailOpen(false)} />
