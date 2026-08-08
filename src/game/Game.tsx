@@ -304,7 +304,7 @@ function Office({ game, setGame, onSave, notice, openApp, setOpenApp, mailOpen, 
     ['+', 'Mejoras', () => setOpenApp('upgrades')]
   ]
   const visibleApps = apps.filter(([, label]) => label === 'Correo' || game.onboarding.unlockedApps.includes(appForLabel[label]))
-  return <main className={`computer-scene theme-${game.desktopTheme} ${game.onboarding.research.includes('suppliers') ? 'suppliers-unlocked' : ''}`} data-base-style={brand.baseStyle} data-vehicle-style={brand.vehicleStyle} data-package-style={brand.packageStyle} style={{ '--brand-main': brand.primary, '--brand-accent': brand.accent } as React.CSSProperties}>
+  return <main className={`computer-scene theme-${game.desktopTheme} ${game.onboarding.research.includes('suppliers') ? 'suppliers-unlocked' : ''}`} data-base-style={brand.baseStyle} data-vehicle-style={brand.vehicleStyle} data-package-style={brand.packageStyle} style={{ '--brand-main': brand.primary, '--brand-accent': brand.accent, '--base-x': findZone(game.baseZoneId ?? cityZones[0].id).x + '%', '--base-y': findZone(game.baseZoneId ?? cityZones[0].id).y + '%' } as React.CSSProperties}>
     <header className="computer-top"><span>CENTRO OPERATIVO v0.2</span><span>{game.storeName.toUpperCase()} · BUENOS AIRES</span></header>
     <section className="computer-wallpaper" data-store={game.storeName.toUpperCase()}>
       <div className="brand-badge"><i>{brand.logo}</i><span><b>{game.storeName}</b><small>SEDE: {findZone(game.baseZoneId ?? cityZones[0].id).name} · ALQ. ${findZone(game.baseZoneId ?? cityZones[0].id).rent.toLocaleString('es-AR')}</small></span></div>
@@ -588,17 +588,19 @@ function DispatchWindow({ game, setGame, onClose }: { game: GameState; setGame: 
   const dispatchCost = vehicleId === 'mensajero' ? vehicle.maintenance : 0
   const mode = routeMode === 'safe' ? { label: 'Cuidado', time: 1.18, risk: .7 } : routeMode === 'fast' ? { label: 'Rapido', time: .8, risk: 1.35 } : { label: 'Balanceado', time: 1, risk: 1 }
   const planned = route.map(id => ready.find(order => order.id === id)).filter((order): order is Order => Boolean(order))
+  const base = findZone(game.baseZoneId ?? cityZones[0].id)
   const stops = ['home', ...planned.map(order => order.zoneId), 'home']
+  const routePoint = (id: string) => id === 'home' ? base : findZone(id)
   const distance = stops.slice(1).reduce((sum, stop, index) => {
-    const from = stops[index] === 'home' ? { x: 24, y: 55 } : findZone(stops[index])
-    const to = stop === 'home' ? { x: 24, y: 55 } : findZone(stop)
+    const from = routePoint(stops[index])
+    const to = routePoint(stop)
     return sum + Math.hypot(to.x - from.x, to.y - from.y)
   }, 0)
-  const minutes = Math.max(balance.bikeMinimumRouteMinutes / vehicle.speed, distance * balance.bikeMinutesPerBlock / vehicle.speed) * mode.time
+  const minutes = Math.max(balance.bikeMinimumRouteMinutes / vehicle.speed, (distance * balance.bikeMinutesPerBlock + planned.length * 3) / vehicle.speed) * mode.time
   useEffect(() => { if (!idleIds.includes(vehicleId)) { setVehicleId(idleIds[0] ?? game.activeVehicleId); setRoute([]) } }, [game.activeDeliveries.length, game.ownedVehicles.join(','), vehicleId])
   const positionFor = (delivery: NonNullable<GameState['activeDelivery']>) => {
     const progress = Math.min(1, Math.max(0, (game.gameMinutes - delivery.startsAt) / (delivery.endsAt - delivery.startsAt)))
-    const coords = ['home', ...delivery.route].map(id => id === 'home' ? { x: 24, y: 55 } : findZone(id))
+    const coords = ['home', ...delivery.route].map(routePoint)
     const segment = Math.min(coords.length - 2, Math.floor(progress * Math.max(1, coords.length - 1)))
     const part = progress * Math.max(1, coords.length - 1) - segment
     const from = coords[segment] ?? coords[0]
@@ -634,13 +636,15 @@ function MapWindow({ game, setGame, onClose }: { game: GameState; setGame: React
   const vehicle = findVehicle(game.activeVehicleId)
   const [route, setRoute] = useState<string[]>([])
   const plannedOrders = route.map(id => ready.find(order => order.id === id)).filter((order): order is Order => Boolean(order))
+  const base = findZone(game.baseZoneId ?? cityZones[0].id)
   const routeStops = ['home', ...plannedOrders.map(order => order.zoneId), 'home']
+  const routePoint = (id: string) => id === 'home' ? base : findZone(id)
   const routeDistance = routeStops.slice(1).reduce((sum, stop, index) => {
-    const from = routeStops[index] === 'home' ? { x: 24, y: 55 } : findZone(routeStops[index])
-    const to = stop === 'home' ? { x: 24, y: 55 } : findZone(stop)
+    const from = routePoint(routeStops[index])
+    const to = routePoint(stop)
     return sum + Math.hypot(to.x - from.x, to.y - from.y)
   }, 0)
-  const baseMinutes = Math.max(balance.bikeMinimumRouteMinutes / vehicle.speed, routeDistance * balance.bikeMinutesPerBlock / vehicle.speed)
+  const baseMinutes = Math.max(balance.bikeMinimumRouteMinutes / vehicle.speed, (routeDistance * balance.bikeMinutesPerBlock + plannedOrders.length * 3) / vehicle.speed)
   const start = () => {
     if (!plannedOrders.length || (!game.bicycleAvailable && vehicle.id === 'bici')) return
     const event = pickDeliveryEvent()
@@ -654,7 +658,7 @@ function MapWindow({ game, setGame, onClose }: { game: GameState; setGame: React
   const totalMinutes = delivery ? delivery.endsAt - delivery.startsAt : baseMinutes
   const progress = delivery ? Math.min(1, Math.max(0, (game.gameMinutes - delivery.startsAt) / (delivery.endsAt - delivery.startsAt))) : 0
   const routeIds = delivery ? ['home', ...delivery.route] : ['home', ...plannedOrders.map(order => order.zoneId)]
-  const coord = (id: string) => id === 'home' ? { x: 24, y: 55 } : findZone(id)
+  const coord = routePoint
   const points = routeIds.map(id => coord(id))
   const path = points.map(point => `${point.x},${point.y}`).join(' ')
   const bikePoint = () => {

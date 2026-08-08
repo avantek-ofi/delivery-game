@@ -7,8 +7,8 @@
   "offerExpirationMinutes": 360,
   "orderDeadlineMinutes": 720,
   "preparationMinutes": 30,
-  "bikeMinutesPerBlock": 8,
-  "bikeMinimumRouteMinutes": 45,
+  "bikeMinutesPerBlock": 0.84,
+  "bikeMinimumRouteMinutes": 18,
   "deliveryRisk": { "Bajo": 0.01, "Medio": 0.035, "Alto": 0.07 },
   "marketEventIntervalMinutes": 360,
   "marketEventDurationMinutes": 480
