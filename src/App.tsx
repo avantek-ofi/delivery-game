@@ -20,6 +20,7 @@ import './styles/hito7.css'
 import './styles/story.css'
 import './styles/onboarding.css'
 import './styles/polish.css'
+import './styles/mobile.css'
 
 export default function App() {
   return <Game />

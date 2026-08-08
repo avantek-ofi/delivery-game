@@ -1,0 +1,101 @@
+/* Mobile-first overrides, loaded last to keep every app window usable on touch screens. */
+@media (max-width: 760px) {
+  html, body, #root { min-width: 0; overflow-x: hidden; }
+  button, input, select { min-height: 38px; }
+  .computer-scene { min-height: 100dvh; padding: 28px 7px 104px; }
+  .computer-top { gap: 8px; font-size: 9px; }
+  .computer-top span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .computer-wallpaper { min-height: calc(100dvh - 132px); border-width: 3px; }
+  .computer-wallpaper::after, .desktop-guide { display: none !important; }
+  .computer-wallpaper .desktop-icons, .desktop-icons { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 12px 5px; padding: 16px 5px; }
+  .desktop-icon i { width: 52px; height: 52px; font-size: 25px; }
+  .desktop-icon span { font-size: 11px; overflow-wrap: anywhere; }
+  .desktop-widgets { display: none !important; }
+  .accessibility-controls { right: 8px; bottom: 8px; }
+  .radio-player { position: fixed; z-index: 7; right: 8px; bottom: 57px; width: min(300px, calc(100vw - 16px)); }
+  .pixel-taskbar { z-index: 8; height: auto; min-height: 49px; gap: 5px; padding: 5px 6px calc(5px + env(safe-area-inset-bottom)); font-size: 9px; flex-wrap: wrap; }
+  .pixel-taskbar > button { display: none; }
+  .pixel-taskbar > span { display: none; }
+  .pixel-taskbar > span:first-of-type, .pixel-taskbar .taskbar-time { display: block; }
+  .pixel-taskbar .taskbar-time { order: 2; margin-left: 0; }
+  .pixel-taskbar div { order: 1; margin-left: auto; }
+  .pixel-taskbar button { min-height: 32px; padding: 4px 6px; font-size: 10px; }
+  .save-controls { top: 4px; right: 5px; }
+  .save-controls button { min-height: 27px; padding: 4px; font-size: 8px; }
+
+  .modal-backdrop { align-items: stretch !important; padding: 0 !important; overflow-y: auto; }
+  .pixel-modal::before { display: none; }
+  .supplier-window, .desktop-window, .map-window, .dispatch-window { width: 100vw !important; min-width: 0 !important; max-width: 100vw !important; min-height: 100dvh !important; max-height: none !important; height: auto !important; resize: none !important; transform: none !important; box-shadow: none !important; border-width: 3px !important; }
+  .supplier-window > header, .desktop-window > header { min-height: 52px !important; padding: 8px 10px !important; cursor: default; touch-action: pan-y; }
+  .supplier-window > header h2 { font-size: 18px !important; }
+  .supplier-window footer { flex-wrap: wrap; gap: 9px !important; padding: 10px 12px !important; }
+  .supplier-window footer > div { min-width: calc(50% - 5px); }
+  .supplier-window footer .primary { flex: 1 1 100%; }
+  .supplier-info, .supplier-copy { padding-left: 12px !important; padding-right: 12px !important; }
+  .product-list, .published-list { padding-left: 12px !important; padding-right: 12px !important; }
+  .product-row { grid-template-columns: 52px minmax(0, 1fr) !important; gap: 8px !important; min-height: 0 !important; padding: 12px 0 !important; }
+  .product-row .price, .product-row .quantity { grid-column: 2; justify-self: start; }
+  .product-row .quantity { width: 100%; justify-content: center; }
+  .product-row strong { font-size: 14px !important; }
+  .product-row small { font-size: 11px !important; }
+  .product-pixel, .product-sprite { width: 48px !important; height: 48px !important; }
+
+  .setup-v2 .new-game-content, .new-game-content { padding: 18px 14px; }
+  .new-game-content h1 { font-size: 34px; }
+  .categories, .setup-zone-grid, .supplier-picker, .publish-platform-grid { grid-template-columns: 1fr !important; }
+  .rent-preview { right: 8px; bottom: 8px; max-width: calc(100vw - 16px); }
+  .intro-scene { padding: 20px; gap: 24px; }
+  .intro-scene p { font-size: clamp(31px, 12vw, 50px); }
+  .room-dialog { left: 12px; right: 12px; bottom: 14px; max-width: none; }
+  .room-window { width: 42%; height: 23%; padding: 8px; border-width: 6px; font-size: 24px; }
+  .room-computer { right: 12% !important; width: 122px; height: 98px; border-width: 6px; }
+  .room-fan { display: none; }
+
+  .inbox-layout, .negotiation-layout, .map-layout, .dispatch-layout { grid-template-columns: 1fr !important; min-height: 0 !important; height: auto !important; }
+  .inbox-layout aside, .offer-inbox { max-height: 190px; overflow: auto; border-right: 0; border-bottom: 4px solid #26365f; }
+  .inbox-layout article, .offer-detail { padding: 14px; }
+  .city-map, .dispatch-map { min-height: min(58vh, 440px) !important; }
+  .route-panel, .dispatch-panel { border-left: 0 !important; border-top: 4px solid #26365f; padding: 12px !important; }
+  .zone-pin strong { max-width: 68px; overflow: hidden; text-overflow: ellipsis; }
+
+  .inventory-kpis, .customer-kpis, .order-dashboard, .finance-grid, .finance-hero, .base-status { grid-template-columns: 1fr 1fr !important; }
+  .inventory-board, .facility-upgrades, .growth-grid, .goal-grid, .fleet-grid { grid-template-columns: 1fr !important; }
+  .inventory-tabs, .order-tabs, .growth-tabs, .listing-tabs { overflow-x: auto; padding-left: 12px !important; padding-right: 12px !important; }
+  .inventory-tabs button, .order-tabs button, .growth-tabs button, .listing-tabs button { flex: 0 0 auto; }
+  .storage-meter, .base-next, .published-inline { margin-left: 12px; margin-right: 12px; }
+  .base-visual { grid-template-columns: 1fr 1fr; padding: 14px; }
+  .base-shelves { width: 92px; height: 82px; }
+  .base-table { width: 92px; }
+  .base-board, .base-van { width: 78px; height: 64px; }
+  .finance-table { margin-left: 12px; margin-right: 12px; overflow-x: auto; }
+  .customer-feed { padding: 12px; }
+  .customer-feed article { grid-template-columns: 30px minmax(0, 1fr); }
+  .customer-feed small { grid-column: 2; }
+  .fleet-summary, .relationship-row, .neighborhood-news, .story-choices { grid-template-columns: 1fr !important; }
+  .phone-desk, .fleet-desk { min-width: 0 !important; }
+
+  .publish-step, .publish-product-grid, .publish-platform-grid { margin-left: 12px; margin-right: 12px; padding-left: 0; padding-right: 0; }
+  .publish-product-grid { grid-template-columns: 1fr !important; }
+  .publish-controls, .listing-form.improved, .offer-decision { grid-template-columns: 1fr !important; margin-left: 12px; margin-right: 12px; }
+  .publish-income, .publish-button { min-height: 54px !important; }
+  .platform-picker { padding-left: 12px !important; padding-right: 12px !important; }
+  .platform-picker > div { grid-template-columns: 1fr !important; }
+  .offer-metrics { grid-template-columns: 1fr !important; }
+  .order-board { padding-left: 12px; padding-right: 12px; }
+  .order-board article { grid-template-columns: 50px minmax(0, 1fr) !important; }
+  .order-board .order-chip, .order-board .primary { grid-column: 2; justify-self: start; }
+
+  .tutorial-overlay { padding: 10px; }
+  .tutorial-card { width: 100%; max-height: calc(100dvh - 20px); overflow: auto; }
+  .tutorial-card main { padding: 14px; }
+  .tutorial-card footer { position: sticky; bottom: 0; }
+  .tutorial-steps { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 390px) {
+  .computer-wallpaper .desktop-icons, .desktop-icons { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .pixel-taskbar > span:first-of-type { display: none; }
+  .pixel-taskbar .taskbar-time { font-size: 8px; }
+  .radio-player { width: calc(100vw - 16px); }
+  .inventory-kpis, .customer-kpis, .order-dashboard, .finance-grid, .finance-hero, .base-status { grid-template-columns: 1fr !important; }
+}
