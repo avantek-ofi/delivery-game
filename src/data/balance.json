@@ -1,7 +1,7 @@
 {
   "initialCapital": 150000,
   "initialDollarRate": 1000,
-  "gameMinutesPerRealSecond": 20,
+  "gameMinutesPerRealSecond": 2,
   "firstImportArrivalMinutes": 90,
   "offerIntervalMinutes": 240,
   "offerExpirationMinutes": 360,
@@ -10,6 +10,6 @@
   "bikeMinutesPerBlock": 8,
   "bikeMinimumRouteMinutes": 45,
   "deliveryRisk": { "Bajo": 0.01, "Medio": 0.035, "Alto": 0.07 },
-  "marketEventIntervalMinutes": 720,
+  "marketEventIntervalMinutes": 360,
   "marketEventDurationMinutes": 480
 }

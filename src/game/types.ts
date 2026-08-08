@@ -24,7 +24,7 @@ export type DesktopApp = 'supplier' | 'inventory' | 'listings' | 'offers' | 'ord
 export type MailMessage = { id: string; sender: string; subject: string; body: string[]; read: boolean; createdAt: number; required?: boolean }
 export type OnboardingState = { phase: 'flow' | 'tour' | 'first-mail' | 'done'; tutorialStep: number; unlockedApps: DesktopApp[]; mails: MailMessage[]; research: string[] }
 export type DeliveryIncident = 'none' | 'goods' | 'bike' | 'all'
-export type MarketEvent = { id: string; label: string; description: string; multiplier: number; endsAt: number; tone: 'positive' | 'negative' } | null
+export type MarketEvent = { id: string; label: string; description: string; multiplier: number; endsAt: number; tone: 'positive' | 'negative'; dollarDelta?: number; platformId?: string; category?: Category; severity?: 'leve' | 'serio' | 'critico' } | null
 export type DeliveryEvent = { id: string; label: string; description: string; tone: 'positive' | 'warning' } | null
 export type ActiveDelivery = { vehicleId?: string; orderIds: string[]; route: string[]; startsAt: number; endsAt: number; incident: DeliveryIncident; event: DeliveryEvent }
 

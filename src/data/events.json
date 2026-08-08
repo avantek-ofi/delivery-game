@@ -1,9 +1,13 @@
 {
   "market": [
-    { "id": "festival", "label": "Festival barrial", "description": "La zona está llena de gente: aumentan las consultas.", "multiplier": 1.3, "duration": 420, "tone": "positive" },
-    { "id": "influencer", "label": "Tendencia viral", "description": "Un producto similar se volvió tendencia en redes.", "multiplier": 1.18, "duration": 480, "tone": "positive" },
-    { "id": "competencia", "label": "Competencia agresiva", "description": "Una campaña rival enfría temporalmente las ventas.", "multiplier": 0.82, "duration": 420, "tone": "negative" },
-    { "id": "lluvia", "label": "Lluvia de tarde", "description": "Menos gente compra durante el mal clima.", "multiplier": 0.9, "duration": 300, "tone": "negative" }
+    { "id": "festival", "label": "Festival barrial", "description": "La zona está llena de gente: aumentan las consultas.", "multiplier": 1.22, "duration": 360, "tone": "positive", "severity": "leve" },
+    { "id": "influencer", "label": "Tendencia viral", "description": "Tecnología se volvió tendencia en redes.", "multiplier": 1.28, "duration": 300, "tone": "positive", "category": "Tecnología", "severity": "leve" },
+    { "id": "mercado-chango", "label": "Semana de Mercado Chango", "description": "La plataforma impulsa publicaciones y compradores.", "multiplier": 1.3, "duration": 300, "tone": "positive", "platformId": "mercado-chango", "severity": "leve" },
+    { "id": "dolar-calma", "label": "Dólar en calma", "description": "Baja la cotización y conviene importar durante unas horas.", "multiplier": 1.05, "duration": 240, "tone": "positive", "dollarDelta": -45, "severity": "leve" },
+    { "id": "competencia", "label": "Competencia agresiva", "description": "Una campaña rival enfría temporalmente las ventas.", "multiplier": 0.82, "duration": 300, "tone": "negative", "severity": "serio" },
+    { "id": "lluvia", "label": "Lluvia de tarde", "description": "Menos gente compra durante el mal clima.", "multiplier": 0.9, "duration": 240, "tone": "negative", "severity": "leve" },
+    { "id": "dolar-salto", "label": "Salto del dólar", "description": "Sube la cotización: importar cuesta más hasta nuevo aviso.", "multiplier": 0.9, "duration": 360, "tone": "negative", "dollarDelta": 85, "severity": "serio" },
+    { "id": "corte-mayor", "label": "Corte logístico regional", "description": "Una crisis complica compras y enfría el mercado.", "multiplier": 0.72, "duration": 420, "tone": "negative", "dollarDelta": 120, "severity": "critico" }
   ],
   "delivery": [
     { "id": "calle-cortada", "label": "Calle cortada", "description": "Hay que tomar un desvío.", "timeMultiplier": 1.3, "riskMultiplier": 1.05, "tone": "warning" },

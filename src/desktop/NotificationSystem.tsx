@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 const toneFor = (message: string) => /insuficiente|asalto|error|perdiste/i.test(message) ? 'danger' : /llegó|entrega|cobraste|confirmada/i.test(message) ? 'success' : /correo|oferta|cliente|evento/i.test(message) ? 'info' : 'neutral'
+const isBulletin = (message: string) => /evento del mercado|dólar|mercado:|alerta en ruta/i.test(message)
 
 function playFeedback(tone: string) {
   if (localStorage.getItem('delivery-game:audio') === 'off') return
@@ -15,5 +16,5 @@ function playFeedback(tone: string) {
 export function NotificationSystem({ message }: { message: string }) {
   const previous = useRef('')
   useEffect(() => { if (message && message !== previous.current) playFeedback(toneFor(message)); previous.current = message }, [message])
-  return message ? <div className={`pixel-notification pixel-notification--${toneFor(message)}`} role="status" aria-live="polite"><i>!</i><span>{message}</span></div> : null
+  return message ? <div className={'pixel-notification pixel-notification--' + toneFor(message) + (isBulletin(message) ? ' tv-bulletin' : '')} role="status" aria-live="polite"><i>{isBulletin(message) ? 'TV' : '!'}</i><span>{message}</span></div> : null
 }

@@ -46,5 +46,8 @@ const catalog: Record<Category, SupplierProduct[]> = {
 }
 
 export const getInitialProducts = (category: Category) => catalog[category]
-export const getSupplierSelection = (category: Category, count = 14) => [...catalog[category]].sort(() => Math.random() - .5).slice(0, count)
+export const getSupplierSelection = (category: Category, count = 14, premium = false) => {
+  const premiumItems = premium ? catalog[category].slice(0, 4).map(product => ({ ...product, id: product.id + '-premium', name: product.name + ' Edición Pro', priceUsd: Math.round(product.priceUsd * 2.4), suggestedPrice: Math.round(product.suggestedPrice * 3.1), description: 'Línea premium: mayor inversión, mejor margen y precio de venta.' })) : []
+  return [...catalog[category], ...premiumItems].sort(() => Math.random() - .5).slice(0, count)
+}
 export const randomCategories = (count = 3) => [...categories].sort(() => Math.random() - .5).slice(0, count)

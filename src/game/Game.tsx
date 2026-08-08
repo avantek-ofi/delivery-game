@@ -44,6 +44,7 @@ export default function Game() {
   const [mailRead, setMailRead] = useState(false)
   const lastTick = useRef(performance.now())
   const knownMailCount = useRef(0)
+  const knownRouteAlert = useRef('')
 
   useEffect(() => {
     if (!game || game.speed === 0) return
@@ -72,7 +73,11 @@ export default function Game() {
             const listing = listingsAfterSales[Math.floor(Math.random() * listingsAfterSales.length)]
             const listingProduct = getInitialProducts(current.category).find(product => product.id === listing.productId)
             const demandFactor = listingProduct?.seasonality === 'Tendencia' ? 1.25 : listingProduct?.seasonality === 'Estacional' ? .82 : 1
-            if (Math.random() > Math.min(1, demandFactor)) continue
+            const marketPrice = Math.max(1, listingProduct?.suggestedPrice ?? listing.price)
+            const priceRatio = listing.price / marketPrice
+            const priceFactor = priceRatio > 1.5 ? 0 : priceRatio > 1 ? Math.min(.86, .06 + current.reputation * .07 + (1.5 - priceRatio) * .55) : Math.min(1.16, 1.03 + (1 - priceRatio) * .2)
+            const eventFactor = current.marketEvent ? (!current.marketEvent.platformId && !current.marketEvent.category || current.marketEvent.platformId === listing.platformId || current.marketEvent.category === current.category ? current.marketEvent.multiplier : 1) : 1
+            if (Math.random() > Math.min(1, demandFactor * eventFactor * priceFactor)) continue
             const rotationBonus = listingProduct?.rotation === 'Rapida' ? 1 : listingProduct?.rotation === 'Lenta' ? -1 : 0
             const quantity = Math.max(1, Math.min(listing.quantity, Math.ceil(Math.random() * 2) + rotationBonus))
             const zoneId = cityZones[Math.floor(Math.random() * cityZones.length)].id
@@ -85,8 +90,8 @@ export default function Game() {
               const buyers = ['Camila R.', 'Nico P.', 'Sofia M.', 'Tomi G.', 'Vale S.', 'Juan D.']
               const buyerName = buyers[Math.floor(Math.random() * buyers.length)]
               const buyerPatience = 1 + Math.floor(Math.random() * 3)
-              const buyerBudget = Math.round(listing.price * (.86 + Math.random() * .28))
-              generatedOffers.push({ id: `offer-${Date.now()}-${index}`, productId: listing.productId, platformId: listing.platformId, quantity, amount: Math.round(Math.min(buyerBudget, listing.price * (0.75 + Math.random() * .2)) * (current.marketEvent?.multiplier ?? 1)), expiresAt: gameMinutes + balance.offerExpirationMinutes * buyerPatience / 2, zoneId, status: 'pending', buyerName, buyerBudget, buyerPatience, buyerPreference: findZone(zoneId).zone })
+            const buyerBudget = Math.round(marketPrice * (.86 + Math.random() * .28 + current.reputation * .025))
+              generatedOffers.push({ id: `offer-${Date.now()}-${index}`, productId: listing.productId, platformId: listing.platformId, quantity, amount: Math.round(Math.min(buyerBudget, listing.price * (0.75 + Math.random() * .2)) * eventFactor), expiresAt: gameMinutes + balance.offerExpirationMinutes * buyerPatience / 2, zoneId, status: 'pending', buyerName, buyerBudget, buyerPatience, buyerPreference: findZone(zoneId).zone })
             }
           }
         }
@@ -101,7 +106,7 @@ export default function Game() {
         const lostGoods = completedDelivery?.incident === 'goods' || completedDelivery?.incident === 'all'
         const deliveryIncome = lostGoods ? 0 : deliveryOrders.reduce((sum, order) => sum + order.amount * order.quantity * (1 - findMarketplace(order.platformId).commission), 0)
         if (completedDelivery) setNotice(lostGoods ? 'Asalto durante el reparto: perdiste la mercadería y no se liberó el pago.' : `Entrega completada. Cobraste $${Math.round(deliveryIncome).toLocaleString('es-AR')} después de comisiones.`)
-        return { ...current, gameMinutes, speed: generatedOffers.length || directOrders.length || completedDelivery ? 1 : current.speed, capital: current.capital + Math.round(deliveryIncome), reputation: current.reputation + (completedDelivery ? (lostGoods ? -1 : deliveryOrders.length) : 0), bicycleAvailable: completedDelivery && (completedDelivery.incident === 'bike' || completedDelivery.incident === 'all') ? false : current.bicycleAvailable, marketEvent: generatedMarketEvent ?? (current.marketEvent && current.marketEvent.endsAt <= gameMinutes ? null : current.marketEvent), lastMarketEventAt: generatedMarketEvent ? gameMinutes : current.lastMarketEventAt, inventory, listings: canGenerateCustomers ? listingsAfterSales : current.listings, lastOfferAt: canGenerateCustomers ? gameMinutes : current.lastOfferAt, activeDelivery: completedDelivery ? null : current.activeDelivery, shipments: current.shipments.map(shipment => due.some(item => item.id === shipment.id) ? { ...shipment, received: true } : shipment), offers: [...current.offers.map(offer => expiredOffers.some(item => item.id === offer.id) ? { ...offer, status: 'expired' as const } : offer), ...generatedOffers], orders: [...current.orders.map(order => completedDelivery?.orderIds.includes(order.id) ? { ...order, status: 'delivered' as const } : finishedOrders.some(item => item.id === order.id) ? { ...order, status: 'ready' as const } : order), ...directOrders] }
+        return { ...current, gameMinutes, speed: generatedOffers.length || directOrders.length || completedDelivery ? 1 : current.speed, capital: current.capital + Math.round(deliveryIncome), dollarRate: generatedMarketEvent?.dollarDelta ? Math.max(500, current.dollarRate + generatedMarketEvent.dollarDelta) : current.dollarRate, reputation: current.reputation + (completedDelivery ? (lostGoods ? -1 : deliveryOrders.length) : 0), bicycleAvailable: completedDelivery && (completedDelivery.incident === 'bike' || completedDelivery.incident === 'all') ? false : current.bicycleAvailable, marketEvent: generatedMarketEvent ?? (current.marketEvent && current.marketEvent.endsAt <= gameMinutes ? null : current.marketEvent), lastMarketEventAt: generatedMarketEvent ? gameMinutes : current.lastMarketEventAt, inventory, listings: canGenerateCustomers ? listingsAfterSales : current.listings, lastOfferAt: canGenerateCustomers ? gameMinutes : current.lastOfferAt, activeDelivery: completedDelivery ? null : current.activeDelivery, shipments: current.shipments.map(shipment => due.some(item => item.id === shipment.id) ? { ...shipment, received: true } : shipment), offers: [...current.offers.map(offer => expiredOffers.some(item => item.id === offer.id) ? { ...offer, status: 'expired' as const } : offer), ...generatedOffers], orders: [...current.orders.map(order => completedDelivery?.orderIds.includes(order.id) ? { ...order, status: 'delivered' as const } : finishedOrders.some(item => item.id === order.id) ? { ...order, status: 'ready' as const } : order), ...directOrders] }
       })
       frame = requestAnimationFrame(tick)
     }
@@ -118,7 +123,7 @@ export default function Game() {
 
   useEffect(() => {
     if (!notice) return
-    const id = window.setTimeout(() => setNotice(''), 3600)
+    const id = window.setTimeout(() => setNotice(''), /evento del mercado|dólar|mercado:|alerta en ruta/i.test(notice) ? 9000 : 5200)
     return () => window.clearTimeout(id)
   }, [notice])
 
@@ -128,6 +133,16 @@ export default function Game() {
     if (count > knownMailCount.current && game.onboarding.phase === 'done') setNotice('TENÉS ' + (count - knownMailCount.current) + ' CORREO NUEVO')
     knownMailCount.current = count
   }, [game?.onboarding.mails.length, game?.onboarding.phase])
+
+  useEffect(() => {
+    const delivery = game?.activeDeliveries.at(-1)
+    if (!delivery) return
+    const key = [delivery.vehicleId, delivery.startsAt, delivery.event?.id ?? '', delivery.incident].join(':')
+    if (key === knownRouteAlert.current) return
+    knownRouteAlert.current = key
+    if (delivery.event) setNotice(`ALERTA EN RUTA: ${delivery.event.label}. ${delivery.event.description}`)
+    else if (delivery.incident !== 'none') setNotice('ALERTA EN RUTA: el repartidor reportó un incidente. Seguí el viaje desde Despacho.')
+  }, [game?.activeDeliveries])
 
   useEffect(() => {
     if (!game || game.onboarding.phase === 'flow' || game.onboarding.phase === 'tour' || game.onboarding.phase === 'first-mail') return
@@ -265,7 +280,7 @@ function Office({ game, setGame, onSave, notice, openApp, setOpenApp, mailOpen, 
   const visibleApps = apps.filter(([, label]) => label === 'Correo' || game.onboarding.unlockedApps.includes(appForLabel[label]))
   return <main className={`computer-scene theme-${game.desktopTheme} ${game.onboarding.research.includes('suppliers') ? 'suppliers-unlocked' : ''}`}>
     <header className="computer-top"><span>CENTRO OPERATIVO v0.2</span><span>{game.storeName.toUpperCase()} · BUENOS AIRES</span></header>
-    <section className="computer-wallpaper">
+    <section className="computer-wallpaper" data-store={game.storeName.toUpperCase()}>
       <div className="desktop-icons">{visibleApps.map(([icon, label, action, alert]) => <DesktopIcon key={label} icon={icon} label={label} alert={alert} highlighted={tutorialTargets.includes(label)} disabled={game.onboarding.phase === 'first-mail' && label !== 'Correo'} onClick={action} />)}</div>
       <p className="desktop-guide">FLUJO: IMPORTAR → PUBLICAR → NEGOCIAR → PREPARAR → DESPACHAR</p>
       <DesktopWidgets game={game} onOpenGrowth={() => setOpenApp('upgrades')} />
@@ -294,7 +309,7 @@ function Office({ game, setGame, onSave, notice, openApp, setOpenApp, mailOpen, 
 }
 
 function SupplierWindow({ game, setGame, onClose }: { game: GameState; setGame: React.Dispatch<React.SetStateAction<GameState | null>>; onClose: () => void }) {
-  const [products] = useState(() => getSupplierSelection(game.category, game.onboarding.research.includes('catalog') ? 14 : 3))
+  const [products] = useState(() => getSupplierSelection(game.category, game.onboarding.research.includes('catalog') ? 14 : 3, game.onboarding.research.includes('premium')))
   const availableSuppliers = game.onboarding.research.includes('suppliers') ? supplierProfiles : [supplierProfiles[0]]
   const [supplierId, setSupplierId] = useState(supplierProfiles[0].id)
   const [quantities, setQuantities] = useState<Record<string, number>>({})
@@ -302,10 +317,10 @@ function SupplierWindow({ game, setGame, onClose }: { game: GameState; setGame: 
   const supplier = availableSuppliers.find(item => item.id === supplierId) ?? availableSuppliers[0]
   const total = products.reduce((sum, product) => sum + (quantities[product.id] ?? 0) * product.priceUsd * supplier.priceFactor * game.dollarRate * (1 + product.importFee), 0)
   const units = Object.values(quantities).reduce((sum, quantity) => sum + quantity, 0)
-  const selectedSpace = products.reduce((sum, product) => sum + (quantities[product.id] ?? 0) * product.volume, 0)
-  const storageCapacity = 10 + game.facility.level * 8 + game.facility.storage * 12
+  const selectedSpace = units
+  const storageCapacity = 10 + game.facility.storage * 10 + game.facility.level * 20
   const allProducts = getInitialProducts(game.category)
-  const occupiedStorage = allProducts.reduce((sum, product) => sum + (game.inventory[product.id] ?? 0) * product.volume, 0) + game.shipments.filter(shipment => !shipment.received).reduce((sum, shipment) => sum + shipment.quantity * (allProducts.find(product => product.id === shipment.productId)?.volume ?? 1), 0)
+  const occupiedStorage = Object.values(game.inventory).reduce((sum, quantity) => sum + quantity, 0) + game.shipments.filter(shipment => !shipment.received).reduce((sum, shipment) => sum + shipment.quantity, 0)
   const purchase = () => {
     if (!units) { setError('Elegí al menos una unidad para tu primer pedido.'); return }
     if (total > game.capital) { setError('Ese pedido supera tu capital disponible.'); return }
@@ -327,8 +342,8 @@ function InventoryDesk({ game, onClose }: { game: GameState; onClose: () => void
   const total = inventory.reduce((sum, product) => sum + (game.inventory[product.id] ?? 0), 0)
   const reserved = inventory.reduce((sum, product) => sum + Math.min(game.inventory[product.id] ?? 0, reservedFor(product.id)), 0)
   const free = Math.max(0, total - reserved)
-  const capacity = 10 + game.facility.level * 8 + game.facility.storage * 12
-  const occupiedSpace = inventory.reduce((sum, product) => sum + (game.inventory[product.id] ?? 0) * product.volume, 0)
+  const capacity = 10 + game.facility.storage * 10 + game.facility.level * 20
+  const occupiedSpace = inventory.reduce((sum, product) => sum + (game.inventory[product.id] ?? 0), 0)
   const stockValue = inventory.reduce((sum, product) => sum + (game.inventory[product.id] ?? 0) * product.priceUsd * game.dollarRate * (1 + product.importFee), 0)
   const rows = tab === 'transit' ? incoming.map(shipment => ({ product: products.find(product => product.id === shipment.productId), quantity: shipment.quantity, reserved: 0, eta: Math.max(0, Math.ceil(shipment.arrivesAt - game.gameMinutes)) })) : inventory.filter(product => tab === 'reserved' ? reservedFor(product.id) > 0 : true).map(product => ({ product, quantity: game.inventory[product.id] ?? 0, reserved: Math.min(game.inventory[product.id] ?? 0, reservedFor(product.id)), eta: null as number | null }))
   return <div className="modal-backdrop"><section className="supplier-window inventory-desk"><header><div><small>DEPOSITO · NIVEL {game.facility.level}</small><h2>Inventario y reservas</h2></div><button onClick={onClose}>X</button></header><section className="inventory-kpis"><article><small>EN BASE</small><strong>{total} u.</strong><span>{free} disponibles para publicar</span></article><article><small>RESERVADAS</small><strong>{reserved} u.</strong><span>en publicaciones activas</span></article><article><small>EN TRANSITO</small><strong>{incoming.reduce((sum, shipment) => sum + shipment.quantity, 0)} u.</strong><span>{incoming.length} envios activos</span></article><article><small>VALOR DE COSTO</small><strong>${Math.round(stockValue).toLocaleString('es-AR')}</strong><span>{occupiedSpace}/{capacity} espacios usados</span></article></section><div className="inventory-tabs"><button className={tab === 'stock' ? 'active' : ''} onClick={() => setTab('stock')}>Stock en base <b>{inventory.length}</b></button><button className={tab === 'reserved' ? 'active' : ''} onClick={() => setTab('reserved')}>Reservado <b>{reserved}</b></button><button className={tab === 'transit' ? 'active' : ''} onClick={() => setTab('transit')}>En transito <b>{incoming.length}</b></button></div><section className="storage-meter"><span>OCUPACION DEL DEPOSITO</span><i><b style={{ width: `${Math.min(100, occupiedSpace / capacity * 100)}%` }}></b></i><strong>{occupiedSpace} / {capacity}</strong></section>{rows.length ? <section className="inventory-board">{rows.map((row, index) => row.product && <article key={`${row.product.id}-${index}`}><ProductSprite productId={row.product.id} label={row.product.name} /><div><strong>{row.product.name}</strong><small>{row.product.description}</small><span>{tab === 'transit' ? `Llega en ${row.eta} min. de juego` : `Costo estimado: $${Math.round(row.product.priceUsd * game.dollarRate * (1 + row.product.importFee)).toLocaleString('es-AR')} c/u`}</span></div><div className="inventory-count"><small>{tab === 'transit' ? 'EN CAMINO' : 'EN BASE'}</small><b>{row.quantity} u.</b></div>{tab !== 'transit' && <div className="inventory-reserved"><small>RESERVADO</small><b>{row.reserved} u.</b><span>{Math.max(0, row.quantity - row.reserved)} libre</span></div>}</article>)}</section> : <div className="empty-state inventory-empty"><strong>{tab === 'transit' ? 'No hay envios en camino.' : tab === 'reserved' ? 'No hay stock reservado.' : 'El deposito esta vacio.'}</strong><span>{tab === 'stock' ? 'Importa productos para poblar tu base.' : 'Cambia de pestaña para revisar otra parte de la operacion.'}</span></div>}</section></div>
@@ -616,7 +631,7 @@ function FinanceDesk({ game, onClose }: { game: GameState; onClose: () => void }
 function FacilityWindow({ game, setGame, onClose }: { game: GameState; setGame: React.Dispatch<React.SetStateAction<GameState | null>>; onClose: () => void }) {
   const tiers = [
     { name: 'Puesto de venta', text: 'Tu mesa de operaciones inicial.', cost: 0 },
-    { name: 'Microdeposito', text: 'Estantes, mesa y espacio para preparar pedidos.', cost: 180000 },
+    { name: 'Galpón barrial', text: 'Un galpón caro que expande la capacidad y permite profesionalizar la operación.', cost: 380000 },
     { name: 'Centro de despacho', text: 'Separacion de paquetes y salida coordinada.', cost: 520000 },
     { name: 'Nodo logistico', text: 'Una base preparada para administrar una flota.', cost: 1400000 }
   ]
@@ -627,15 +642,14 @@ function FacilityWindow({ game, setGame, onClose }: { game: GameState; setGame: 
     setGame(value => value && ({ ...value, capital: value.capital - next.cost, facility: { ...value.facility, level: (value.facility.level + 1) as 0 | 1 | 2 | 3 } }))
   }
   const upgrades = [
-    { id: 'storage' as const, name: 'Estanterias modulares', text: 'Ordena el stock y deja claro que esta disponible.', base: 45000, effect: `+${12 + game.facility.storage * 6} espacios visuales` },
     { id: 'packing' as const, name: 'Mesa de empaque', text: 'Reduce el tiempo manual de preparacion.', base: 70000, effect: `${Math.round(game.facility.packing * 20)}% mas rapido` },
     { id: 'dispatch' as const, name: 'Panel de despacho', text: 'Baja el desgaste y el riesgo al salir a repartir.', base: 110000, effect: `${game.facility.dispatch * 8}% menos riesgo` }
   ]
   const buyUpgrade = (id: 'storage' | 'packing' | 'dispatch', base: number) => setGame(value => {
     if (!value) return null
     const level = value.facility[id]
-    const cost = Math.round(base * (1 + level * .75))
-    if (level >= 3 || value.capital < cost) return value
+    const cost = Math.round(base * (id === 'storage' ? Math.pow(1.5, level) : 1 + level * .75))
+    if (level >= (id === 'storage' ? 5 : 3) || value.capital < cost) return value
     return { ...value, capital: value.capital - cost, facility: { ...value.facility, [id]: level + 1 } }
   })
   const rest = () => setGame(value => value && ({ ...value, gameMinutes: value.gameMinutes + 60, energy: 100 }))
