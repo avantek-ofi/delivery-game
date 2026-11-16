@@ -67,7 +67,7 @@ export function GameScreen({ initial, onExit }: { initial: GameState; onExit: ()
     if (!fresh.length) return
     const withSound = [...fresh].reverse().find(entry => entry.sound)
     if (withSound?.sound) play(withSound.sound)
-    const important = fresh.filter(entry => entry.sound === 'level' || (entry.tone === 'bad' && entry.sound === 'bad') || entry.tone === 'good')
+    const important = fresh.filter(entry => entry.sound === 'level' || entry.tone === 'good' || (entry.tone === 'bad' && entry.sound === 'bad' && !/^[⌛★]/.test(entry.text)))
     if (important.length) {
       setToasts(prev => [...prev, ...important.map(entry => ({ id: entry.id, text: entry.text, tone: entry.tone }))].slice(-4))
       important.forEach(entry => window.setTimeout(() => setToasts(prev => prev.filter(x => x.id !== entry.id)), 5200))

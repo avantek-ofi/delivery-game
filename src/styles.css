@@ -502,6 +502,11 @@ button:disabled { cursor: not-allowed; }
   .stock-table { font-size: 13px; }
   .modal-body { overflow-x: auto; }
   .menu { justify-items: center; padding: 20px; }
+  .night-wrap { position: fixed; z-index: 30; overflow: auto; align-items: start; }
+  .night-actions { grid-template-columns: 1fr; }
+  .hint-bubble { right: 15px; bottom: 80px; }
+  .clock-box { order: 1; }
+  .speed { order: 2; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
