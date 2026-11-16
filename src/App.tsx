@@ -1,27 +1,17 @@
-import Game from './game/Game'
-import './styles/game.css'
-import './styles/desktop.css'
-import './styles/windows.css'
-import './styles/map.css'
-import './styles/fixes.css'
-import './styles/publishing.css'
-import './styles/facility.css'
-import './styles/dispatch.css'
-import './styles/apps.css'
-import './styles/finance.css'
-import './styles/economy.css'
-import './styles/market.css'
-import './styles/progression.css'
-import './styles/route-planning.css'
-import './styles/incidents.css'
-import './styles/landmarks.css'
-import './styles/goals.css'
-import './styles/hito7.css'
-import './styles/story.css'
-import './styles/onboarding.css'
-import './styles/polish.css'
-import './styles/mobile.css'
+import { useState } from 'react'
+import { newGame } from './game/engine'
+import { hasSave, loadGame, saveGame } from './game/save'
+import type { GameState } from './game/types'
+import { GameScreen } from './screens/GameScreen'
+import { Intro, MainMenu, Setup } from './screens/Menu'
+
+type Screen = { id: 'menu' } | { id: 'intro' } | { id: 'setup' } | { id: 'game'; state: GameState }
 
 export default function App() {
-  return <Game />
+  const [screen, setScreen] = useState<Screen>({ id: 'menu' })
+  const [canLoad, setCanLoad] = useState(hasSave)
+  if (screen.id === 'intro') return <Intro onDone={() => setScreen({ id: 'setup' })} />
+  if (screen.id === 'setup') return <Setup onBack={() => setScreen({ id: 'menu' })} onStart={opt => { const state = newGame(opt); saveGame(state); setScreen({ id: 'game', state }) }} />
+  if (screen.id === 'game') return <GameScreen key={screen.state.seed} initial={screen.state} onExit={() => { setCanLoad(hasSave()); setScreen({ id: 'menu' }) }} />
+  return <MainMenu canLoad={canLoad} onNew={() => setScreen({ id: 'intro' })} onLoad={() => { const state = loadGame(); if (state) setScreen({ id: 'game', state }) }} />
 }
