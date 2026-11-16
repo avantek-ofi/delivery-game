@@ -3,6 +3,7 @@ export type PriceTier = 'barato' | 'justo' | 'caro'
 export type Channel = 'whatsapp' | 'instagram' | 'chango' | 'app'
 export type Speed = 0 | 1 | 2 | 3
 export type Phase = 'day' | 'closing' | 'summary' | 'night' | 'gameover'
+export type Zone = 'Norte' | 'Centro' | 'Oeste' | 'Sur'
 
 export type Product = {
   id: string
@@ -17,7 +18,7 @@ export type Product = {
   bulky?: boolean // necesita utilitario
 }
 
-export type Barrio = { id: string; name: string; zone: 'Norte' | 'Centro' | 'Oeste' | 'Sur'; x: number; y: number; wealth: number; risk: number; demand: number }
+export type Barrio = { id: string; name: string; zone: Zone; x: number; y: number; wealth: number; risk: number; demand: number; kind: 'barrio' | 'partido'; region: string }
 
 export type OrderKind = 'normal' | 'urgente' | 'mayorista' | 'vip'
 export type OrderLine = { productId: string; qty: number }
@@ -25,6 +26,8 @@ export type Order = {
   id: string
   customer: string
   barrioId: string
+  x: number
+  y: number
   lines: OrderLine[]
   total: number
   channel: Channel
@@ -39,9 +42,12 @@ export type Order = {
   rating?: number
 }
 
-export type Stop = { x: number; y: number; orderId: string | null; at: number }
-export type Trip = { startedAt: number; from: { x: number; y: number }; stops: Stop[]; incident: TripIncident | null; done: number; ratingMod: number }
+export type Pt = [number, number]
+export type Stop = { x: number; y: number; orderId: string | null; at: number; travel: number; path: Pt[]; cuadras: number }
 export type TripIncident = { id: string; at: number; fired: boolean }
+export type Trip = { startedAt: number; from: { x: number; y: number }; stops: Stop[]; incident: TripIncident | null; done: number; ratingMod: number }
+
+export type VehicleUnit = { uid: string; model: string; mods: string[] }
 
 export type Courier = {
   id: string
@@ -51,20 +57,21 @@ export type Courier = {
   speed: number // 1..5
   care: number // 1..5
   salary: number // por día, a índice 1
-  vehicleId: string
+  vehicle: VehicleUnit
   energy: number // 0..100
   xp: number
   trips: number
   trip: Trip | null
   isPlayer?: boolean
   injuredUntilDay?: number
+  trainedDay?: number
 }
 
 export type Vehicle = { id: string; name: string; emoji: string; price: number; cap: number; speed: number; upkeep: number; risk: number; bulky: boolean; minLevel: number; desc: string }
 
 export type Purchase = { id: string; productId: string; qty: number; arrivesAt: number; source: 'once' | 'import' }
 
-export type Modifier = { id: string; label: string; until: number; demand?: number; rubro?: RubroId; zone?: Barrio['zone']; speed?: number; risk?: number; cost?: number; tips?: number }
+export type Modifier = { id: string; label: string; until: number; demand?: number; rubro?: RubroId; zone?: Zone; speed?: number; risk?: number; cost?: number; tips?: number }
 
 export type DayEvent = { id: string; title: string; text: string; emoji: string; tone: 'good' | 'bad' | 'neutral'; demand?: number; rubros?: Partial<Record<RubroId, number>>; speed?: number; risk?: number; cost?: number; dollar?: number; tips?: number }
 
@@ -73,13 +80,14 @@ export type Choice = { label: string; detail: string; effect: Effect; result: st
 export type StoryCard = { id: string; who: string; emoji: string; title: string; text: string; choices: Choice[] }
 
 export type LogEntry = { id: number; at: number; tone: 'good' | 'bad' | 'info' | 'cash' | 'call'; text: string; sound?: 'ring' | 'cash' | 'bad' | 'good' | 'level' }
+export type PhoneMsg = { id: number; chat: string; text: string; at: number; read: boolean; mine?: boolean }
 
-export type DayStats = { day: number; revenue: number; cogs: number; expenses: number; fees: number; delivered: number; failed: number; lost: number; ratings: number[]; fansStart: number; repStart: number; tips: number; detail: Record<string, number> }
+export type DayStats = { day: number; revenue: number; cogs: number; expenses: number; fees: number; delivered: number; failed: number; lost: number; ratings: number[]; fansStart: number; repStart: number; tips: number; walkIn: number; cuadras: number; bestStreak: number; detail: Record<string, number> }
 
 export type Loan = { id: string; name: string; perDay: number; daysLeft: number }
 
 export type GameState = {
-  version: 2
+  version: 3
   seed: number
   playerName: string
   storeName: string
@@ -97,6 +105,9 @@ export type GameState = {
   fans: number
   ideas: number
   level: number // nivel del local 0..4
+  facility: Record<string, number> // mejoras del local
+  quality: Partial<Record<RubroId, number>> // calidad de la línea de productos por rubro
+  regions: string[] // regiones del conurbano abiertas
   rubros: RubroId[]
   channels: Channel[]
   research: string[]
@@ -106,7 +117,7 @@ export type GameState = {
   autoRestock: Record<string, number>
   orders: Order[]
   couriers: Courier[]
-  vehicles: string[] // vehículos sin asignar (garage)
+  garage: VehicleUnit[]
   candidates: Courier[]
   modifiers: Modifier[]
   today: DayEvent | null
@@ -119,11 +130,15 @@ export type GameState = {
   loanTaken: string[]
   log: LogEntry[]
   logSeq: number
+  inbox: PhoneMsg[]
   nextOrderAt: number
+  nextWalkInAt: number
+  streak: number
   stats: DayStats
   history: DayStats[]
-  lifetime: { delivered: number; failed: number; revenue: number; profit: number; bestDay: number; maxFans: number; perfect: number }
+  lifetime: { delivered: number; failed: number; revenue: number; profit: number; bestDay: number; maxFans: number; perfect: number; cuadras: number; bestStreak: number }
   debtDays: number
   autoDispatch: boolean
+  tutorial: number | null
   won: boolean
 }

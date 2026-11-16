@@ -2,7 +2,9 @@
 // y se agranda con image-rendering: pixelated. Así todo el catálogo comparte estética.
 const cache = new Map<string, string>()
 
-const render = (emoji: string, res: number) => {
+export const pixelSrc = (emoji: string, res = 20) => render(emoji, res)
+
+function render(emoji: string, res: number) {
   const key = `${emoji}@${res}`
   const hit = cache.get(key)
   if (hit) return hit

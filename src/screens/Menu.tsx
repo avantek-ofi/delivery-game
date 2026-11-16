@@ -55,6 +55,7 @@ export function Setup({ onStart, onBack }: { onStart: (opt: NewGameOptions) => v
   const [storeName, setStoreName] = useState('')
   const [baseBarrioId, setBase] = useState('caballito')
   const [rubro, setRubro] = useState<RubroId>('celus')
+  const [tutorial, setTutorial] = useState(true)
   const ready = playerName.trim() && storeName.trim()
   return <main className="setup" style={{ backgroundImage: `url(${nightBg})` }}>
     <Filete className="setup-card">
@@ -82,8 +83,9 @@ export function Setup({ onStart, onBack }: { onStart: (opt: NewGameOptions) => v
       </div>
       <footer className="setup-foot">
         <button className="btn btn--ghost" onClick={onBack}>‹ Volver</button>
-        <span className="hint">{BARRIOS.length} barrios · 12 rubros · 60 productos te esperan</span>
-        <button className="btn btn--gold big" disabled={!ready} onClick={() => { play('level'); onStart({ playerName: playerName.trim(), storeName: storeName.trim(), baseBarrioId, rubro }) }}>Abrir el negocio</button>
+        <label className="tut-check"><input type="checkbox" checked={tutorial} onChange={e => setTutorial(e.target.checked)} /> Tutorial guiado (recomendado)</label>
+        <span className="hint">{BARRIOS.filter(b => b.kind === 'barrio').length} barrios de CABA + conurbano · 12 rubros · 60 productos</span>
+        <button className="btn btn--gold big" disabled={!ready} onClick={() => { play('level'); onStart({ playerName: playerName.trim(), storeName: storeName.trim(), baseBarrioId, rubro, tutorial }) }}>Abrir el negocio</button>
       </footer>
     </Filete>
   </main>

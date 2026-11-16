@@ -5,11 +5,11 @@ export const CLOSE_MIN = 21 * 60
 export const LATE_CLOSE_MIN = 23 * 60
 
 export const LEVELS = [
-  { name: 'La pieza', emoji: '🛏️', price: 0, storage: 40, couriers: 2, rent: 4000, radius: 24, demand: 1, maxCalls: 5, desc: 'Tu cuarto en lo de tu vieja. Cajas abajo de la cama y la bici en el pasillo.' },
-  { name: 'Local a la calle', emoji: '🏪', price: 650000, storage: 110, couriers: 4, rent: 16000, radius: 34, demand: 1.25, maxCalls: 7, desc: 'Persiana propia, cartel y vecinos que entran a preguntar. Más zona de cobertura.' },
-  { name: 'Galpón', emoji: '🏭', price: 3200000, storage: 300, couriers: 7, rent: 45000, radius: 48, demand: 1.5, maxCalls: 9, desc: 'Un galpón con portón para utilitarios. Llegás a media ciudad.' },
-  { name: 'Centro logístico', emoji: '🏢', price: 12000000, storage: 800, couriers: 12, rent: 110000, radius: 70, demand: 1.8, maxCalls: 12, desc: 'Estanterías hasta el techo, playa de carga y oficina con aire. Toda la ciudad.' },
-  { name: 'Hub Rebusque', emoji: '🏙️', price: 40000000, storage: 2000, couriers: 20, rent: 240000, radius: 999, demand: 2.2, maxCalls: 15, desc: 'Tu nombre en un edificio. Los que te decían "conseguite un laburo en serio" ahora te piden trabajo.' },
+  { name: 'La pieza', emoji: '🛏️', price: 0, storage: 40, couriers: 2, rent: 4000, radius: 38, demand: 1, maxCalls: 5, desc: 'Tu cuarto en lo de tu vieja. Cajas abajo de la cama y la bici en el pasillo.' },
+  { name: 'Local a la calle', emoji: '🏪', price: 650000, storage: 110, couriers: 5, rent: 16000, radius: 60, demand: 1.25, maxCalls: 7, desc: 'Persiana propia, cartel y vecinos que entran a preguntar. Más zona de cobertura.' },
+  { name: 'Galpón', emoji: '🏭', price: 3200000, storage: 300, couriers: 7, rent: 45000, radius: 92, demand: 1.5, maxCalls: 9, desc: 'Un galpón con portón para utilitarios. Llegás a media Capital.' },
+  { name: 'Centro logístico', emoji: '🏢', price: 12000000, storage: 800, couriers: 12, rent: 110000, radius: 999, demand: 1.8, maxCalls: 12, desc: 'Estanterías hasta el techo, playa de carga y oficina con aire. Toda la Capital, y la puerta abierta al conurbano.' },
+  { name: 'Hub Rebusque', emoji: '🏙️', price: 60000000, storage: 2000, couriers: 20, rent: 240000, radius: 999, demand: 2.2, maxCalls: 15, desc: 'Tu nombre en un edificio. Los que te decían "conseguite un laburo en serio" ahora te piden trabajo.' },
 ]
 
 export const VEHICLES: Vehicle[] = [
@@ -298,7 +298,13 @@ export const GOALS: Goal[] = [
   g('cinco-estrellas', 'Excelencia porteña', 'Tené reputación de 4,5★ o más con 20 entregas.', { fans: 120 }, '120 fans', s => [s.lifetime.delivered >= 20 ? Math.round(s.rep * 10) : 0, 45]),
   g('cien', 'Centenario', 'Entregá 100 pedidos.', { capital: 200000, ideas: 6 }, '$200.000 + 6 💡', s => [s.lifetime.delivered, 100]),
   g('millon', 'Primer palo', 'Tené $1.000.000 en caja.', { ideas: 8 }, '8 💡', s => [s.capital, 1000000]),
-  g('moto', 'Motorizado', 'Comprá una moto.', { fans: 80 }, '80 fans', s => [s.couriers.some(x => x.vehicleId === 'moto') || s.vehicles.includes('moto') ? 1 : 0, 1]),
+  g('moto', 'Motorizado', 'Comprá una moto.', { fans: 80 }, '80 fans', s => [s.couriers.some(x => x.vehicle.model === 'moto') || s.garage.some(v => v.model === 'moto') ? 1 : 0, 1]),
+  g('racha', 'Racha imparable', 'Hacé una racha de 10 entregas perfectas seguidas.', { capital: 60000, fans: 40 }, '$60.000 + 40 fans', s => [s.lifetime.bestStreak, 10]),
+  g('cuadras', 'Mil cuadras', 'Recorré 1.000 cuadras entre todo el equipo.', { ideas: 4 }, '4 💡', s => [s.lifetime.cuadras, 1000]),
+  g('mejoras', 'Local equipado', 'Comprá 4 mejoras del local.', { capital: 150000 }, '$150.000', s => [Object.values(s.facility).reduce((a, b) => a + b, 0), 4]),
+  g('tuneado', 'Tuneado', 'Ponele 3 mejoras a tus vehículos.', { fans: 60 }, '60 fans', s => [[...s.couriers.map(c => c.vehicle), ...s.garage].reduce((a, v) => a + v.mods.length, 0), 3]),
+  g('premium', 'Calidad de exportación', 'Llevá un rubro a Línea premium.', { ideas: 6 }, '6 💡', s => [Math.max(0, ...Object.values(s.quality).map(v => v ?? 0)), 2]),
+  g('conurbano', 'Cruzar la General Paz', 'Abrí tu primera zona del conurbano.', { fans: 800 }, '800 fans', s => [s.regions.length, 1]),
   g('galpon', 'Galponero', 'Mudate a un galpón.', { capital: 500000 }, '$500.000', s => [s.level, 2]),
   g('mil-fans', 'Mil fans', 'Llegá a 1.000 fans.', { capital: 300000 }, '$300.000', s => [s.fans, 1000]),
   g('dia-record', 'Día récord', 'Facturá $1.000.000 en un solo día.', { ideas: 10 }, '10 💡', s => [s.lifetime.bestDay, 1000000]),
@@ -307,6 +313,7 @@ export const GOALS: Goal[] = [
   g('centro', 'Centro logístico', 'Llegá al Centro logístico.', { fans: 1000 }, '1.000 fans', s => [s.level, 3]),
   g('diez-mil', 'Fenómeno porteño', 'Llegá a 10.000 fans.', { capital: 3000000 }, '$3.000.000', s => [s.fans, 10000]),
   g('hub', 'Rey de CABA', 'Abrí el Hub Rebusque.', { fans: 5000 }, '5.000 fans', s => [s.level, 4]),
+  g('amba', 'Dueño del AMBA', 'Abrí las tres zonas del conurbano.', { capital: 5000000 }, '$5.000.000', s => [s.regions.length, 3]),
 ]
 
 export const RANKS = ['Pibe del rebusque', 'Emprendedor de barrio', 'Comerciante con calle', 'PyME porteña', 'Rey de la logística', 'Leyenda de CABA']
@@ -338,3 +345,57 @@ export const NEWS_TICKER = [
   'Inauguran una feria de diseño en Palermo Soho',
 ]
 
+
+// ---------- mejoras del local ----------
+export type FacilityDef = { id: string; name: string; emoji: string; desc: string; levels: { price: number; text: string }[]; minLevel: number }
+export const FACILITY: FacilityDef[] = [
+  { id: 'estanterias', name: 'Estanterías', emoji: '🗄️', minLevel: 0, desc: 'Más lugar en el depósito sin mudarte.', levels: [{ price: 45000, text: '+25% de depósito' }, { price: 160000, text: '+50% de depósito' }, { price: 600000, text: '+80% de depósito' }] },
+  { id: 'embalaje', name: 'Mesa de embalaje', emoji: '📦', minLevel: 0, desc: 'Paquetes prolijos y rápidos: cada entrega tarda menos y llega más linda.', levels: [{ price: 60000, text: '+0,15★ y -1 min por parada' }, { price: 220000, text: '+0,3★ y -2 min por parada, frágiles más seguros' }] },
+  { id: 'mostrador', name: 'Mostrador a la calle', emoji: '🏪', minLevel: 1, desc: 'La gente que pasa por la vereda compra lo que tenés en stock, sin delivery.', levels: [{ price: 120000, text: '≈1 venta de mostrador por hora' }, { price: 380000, text: '≈2 ventas por hora' }, { price: 1100000, text: '≈3,5 ventas por hora' }] },
+  { id: 'cartel', name: 'Cartel luminoso', emoji: '💡', minLevel: 1, desc: 'Neón en la fachada: te ven desde la esquina.', levels: [{ price: 150000, text: '+7% de pedidos' }, { price: 650000, text: '+15% de pedidos' }] },
+  { id: 'vestuario', name: 'Cocina y vestuario', emoji: '☕', minLevel: 1, desc: 'Mate, microondas y una ducha. Los cadetes recuperan energía entre viajes.', levels: [{ price: 90000, text: '+8 de energía por hora en la base' }, { price: 300000, text: '+16 de energía por hora en la base' }] },
+  { id: 'alarma', name: 'Cámaras y rastreo GPS', emoji: '📹', minLevel: 1, desc: 'Cámaras en el local y rastreo de toda la flota.', levels: [{ price: 200000, text: '-25% de incidentes en la calle' }, { price: 700000, text: '-45% de incidentes en la calle' }] },
+  { id: 'call', name: 'Centro de atención', emoji: '🎧', minLevel: 2, desc: 'Alguien que atiende el teléfono por vos.', levels: [{ price: 500000, text: '+3 pedidos simultáneos y +20% de paciencia' }, { price: 1600000, text: '+6 pedidos simultáneos y +40% de paciencia' }] },
+]
+export const facilityById = (id: string) => FACILITY.find(f => f.id === id)!
+
+// ---------- mejoras de vehículos ----------
+export type VehicleMod = { id: string; name: string; emoji: string; desc: string; priceFactor: number; minPrice: number }
+export const VEHICLE_MODS: VehicleMod[] = [
+  { id: 'carga', name: 'Canasto / baúl grande', emoji: '🧺', desc: '+40% de carga', priceFactor: .18, minPrice: 18000 },
+  { id: 'motor', name: 'Puesta a punto', emoji: '⚙️', desc: '+15% de velocidad', priceFactor: .22, minPrice: 25000 },
+  { id: 'candado', name: 'Candado + seguro', emoji: '🔒', desc: '-35% de incidentes', priceFactor: .15, minPrice: 15000 },
+  { id: 'ploteo', name: 'Ploteo con tu marca', emoji: '🎨', desc: '+1 fan por entrega (publicidad rodante)', priceFactor: .12, minPrice: 20000 },
+]
+
+// ---------- calidad de la línea de productos ----------
+export const QUALITY_LEVELS = [
+  { name: 'Genérico', price: 0, ideas: 0 },
+  { name: 'Marca conocida', price: 80000, ideas: 4 },
+  { name: 'Línea premium', price: 300000, ideas: 10 },
+  { name: 'Marca propia', price: 1200000, ideas: 22 },
+]
+// cada nivel: +7% precio de venta, +4% costo, +0,15★ y +5% de pedidos del rubro
+
+export const TRAINING_COST = 25000
+
+// ---------- hora pico ----------
+export const rushHour = (minute: number): { mult: number; label: string } => {
+  const h = minute / 60
+  if (h >= 12 && h < 14.5) return { mult: 1.6, label: 'Hora pico: almuerzo' }
+  if (h >= 18 && h < 20.5) return { mult: 1.5, label: 'Hora pico: salida del laburo' }
+  if (h < 10) return { mult: .7, label: 'Arranca el día' }
+  if (h >= 21) return { mult: .85, label: 'Turno noche' }
+  return { mult: 1, label: '' }
+}
+
+// ---------- contactos del celular ----------
+export const CONTACTS: Record<string, { name: string; emoji: string; status: string }> = {
+  franco: { name: 'Franco', emoji: '🧔', status: 'Tu mentor. Local en Almagro.' },
+  mama: { name: 'Mamá', emoji: '👩‍🦳', status: 'Hay milanesas en la heladera' },
+  mara: { name: 'Mara (Once)', emoji: '👩‍💼', status: 'Mayorista. Te hace precio.' },
+  clientes: { name: 'Clientes', emoji: '💬', status: 'Reseñas y mensajes' },
+  banco: { name: 'Banco Porteño', emoji: '🏦', status: 'Notificaciones' },
+  lobo: { name: 'Esteban Lobo', emoji: '🐺', status: 'Lobo Envíos' },
+  barrio: { name: 'Vecinos del barrio', emoji: '🏘️', status: 'Grupo · 248 miembros' },
+}

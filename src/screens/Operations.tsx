@@ -1,7 +1,6 @@
 import { barrioById } from '../game/barrios'
 import { productById } from '../game/catalog'
-import { vehicleById } from '../game/content'
-import { courierAvailable, missingFor, now, orderBulky, orderVolume, planRoute, rushCost } from '../game/engine'
+import { courierAvailable, missingFor, now, orderBulky, orderVolume, planRoute, rushCost, vehicleStats } from '../game/engine'
 import type { Channel, Courier, GameState, Order } from '../game/types'
 import { Bar, money } from '../ui/common'
 import { PixelIcon } from '../ui/PixelIcon'
@@ -11,16 +10,16 @@ const CHANNEL: Record<Channel, { label: string; emoji: string }> = {
 }
 const KIND: Record<Order['kind'], string> = { normal: '', urgente: 'URGENTE', mayorista: 'MAYORISTA', vip: 'VIP' }
 
-export function OrderCard({ s, order, selected, onToggle, onRush, onReject }: { s: GameState; order: Order; selected: boolean; onToggle: () => void; onRush: () => void; onReject: () => void }) {
+export function OrderCard({ s, order, selected, onToggle, onRush, onReject, first }: { s: GameState; order: Order; selected: boolean; onToggle: () => void; onRush: () => void; onReject: () => void; first?: boolean }) {
   const t = now(s)
   const left = Math.max(0, order.expiresAt - t)
   const missing = missingFor(s, order)
   const rush = missing.length ? rushCost(s, order) : 0
   const barrio = barrioById(order.barrioId)
-  return <article className={`order ${selected ? 'sel' : ''} order--${order.kind} ${left < 15 ? 'hurry' : ''}`} onClick={onToggle}>
+  return <article className={`order ${selected ? 'sel' : ''} order--${order.kind} ${left < 15 ? 'hurry' : ''}`} data-tut={first ? 'first-order' : undefined} onClick={onToggle}>
     <header>
       <span className="check">{selected ? '✔' : ''}</span>
-      <div className="who"><b>{order.customer}</b><small>{CHANNEL[order.channel].emoji} {barrio.name}</small></div>
+      <div className="who"><b>{order.customer}</b><small>{CHANNEL[order.channel].emoji} {barrio.name}{barrio.kind === 'partido' ? ' · conurbano' : ''}</small></div>
       {KIND[order.kind] && <em className={`kind kind--${order.kind}`}>{KIND[order.kind]}</em>}
       <strong className="price">{money(order.total)}</strong>
     </header>
@@ -35,8 +34,8 @@ export function OrderCard({ s, order, selected, onToggle, onRush, onReject }: { 
   </article>
 }
 
-export function CourierCard({ s, courier, selected, onSend, onFocus }: { s: GameState; courier: Courier; selected: string[]; onSend: () => void; onFocus: () => void }) {
-  const vehicle = vehicleById(courier.vehicleId)
+export function CourierCard({ s, courier, selected, onSend, onFocus, onBlur }: { s: GameState; courier: Courier; selected: string[]; onSend: () => void; onFocus: () => void; onBlur: () => void }) {
+  const vehicle = vehicleStats(courier.vehicle)
   const available = courierAvailable(s, courier)
   const plan = selected.length && available ? planRoute(s, courier.id, selected) : null
   const t = now(s)
@@ -44,7 +43,7 @@ export function CourierCard({ s, courier, selected, onSend, onFocus }: { s: Game
   const eta = trip ? Math.max(0, Math.round(trip.stops[trip.stops.length - 1].at - t)) : 0
   const delivering = trip ? trip.stops.slice(trip.done).filter(st => st.orderId).length : 0
   const status = trip ? (delivering ? `Repartiendo · ${delivering} pendiente${delivering > 1 ? 's' : ''}` : 'Volviendo a la base') : courier.injuredUntilDay && courier.injuredUntilDay >= s.day ? 'Lesionado' : courier.energy < 12 ? 'Fundido: mañana sigue' : 'Libre en la base'
-  return <article className={`courier ${trip ? 'busy' : available ? 'free' : 'tired'}`} onMouseEnter={onFocus}>
+  return <article className={`courier ${trip ? 'busy' : available ? 'free' : 'tired'}`} data-tut={courier.isPlayer ? 'player-card' : undefined} onMouseEnter={onFocus} onMouseLeave={onBlur}>
     <div className="avatar"><PixelIcon emoji={courier.emoji} size={34} res={18} /><span className="veh"><PixelIcon emoji={vehicle.emoji} size={20} res={14} /></span></div>
     <div className="info">
       <b>{courier.isPlayer ? `${courier.name} (vos)` : courier.name}</b>
@@ -53,7 +52,7 @@ export function CourierCard({ s, courier, selected, onSend, onFocus }: { s: Game
     </div>
     <div className="send">
       {plan ? <button className="btn btn--gold" disabled={!plan.ok} onClick={onSend} title={plan.reason}>{plan.ok ? `Enviar · ${plan.minutes}′` : 'No puede'}</button> : <span className="cap" title="Capacidad de carga">📦 {vehicle.cap}{vehicle.bulky ? ' 🚐' : ''}</span>}
-      {plan && !plan.ok && <small className="reason">{plan.reason}</small>}
+      {plan && (plan.ok ? <small className="cuadras">{plan.cuadras} cuadras</small> : <small className="reason">{plan.reason}</small>)}
     </div>
   </article>
 }
@@ -68,7 +67,7 @@ export function Operations({ s, selected, onToggle, onClear, onSend, onRush, onR
       <header className="ops-head"><h3>📞 Pedidos entrantes <em>{waiting.length}</em></h3>{s.research.includes('autodespacho') && <span className="auto-chip">🤖 bot activo</span>}</header>
       <div className="call-list">
         {waiting.length === 0 && <div className="empty">{s.phase === 'day' ? 'El celular está tranquilo… por ahora. ☕' : s.phase === 'closing' ? 'Persiana baja. Esperando a los cadetes.' : 'Noche en Buenos Aires.'}</div>}
-        {waiting.map(order => <OrderCard key={order.id} s={s} order={order} selected={selected.includes(order.id)} onToggle={() => onToggle(order.id)} onRush={() => onRush(order.id)} onReject={() => onReject(order.id)} />)}
+        {waiting.map((order, i) => <OrderCard first={i === 0} key={order.id} s={s} order={order} selected={selected.includes(order.id)} onToggle={() => onToggle(order.id)} onRush={() => onRush(order.id)} onReject={() => onReject(order.id)} />)}
       </div>
     </section>
     <section className={`dispatch-bar ${selected.length ? 'on' : ''}`}>
@@ -76,7 +75,7 @@ export function Operations({ s, selected, onToggle, onClear, onSend, onRush, onR
     </section>
     <section className="ops-crew">
       <header className="ops-head"><h3>🚲 Tu equipo <em>{s.couriers.filter(c => !c.trip).length}/{s.couriers.length}</em></h3></header>
-      <div className="crew-list">{s.couriers.map(c => <CourierCard key={c.id} s={s} courier={c} selected={selected} onSend={() => onSend(c.id)} onFocus={() => onFocus(c.id)} />)}</div>
+      <div className="crew-list">{s.couriers.map(c => <CourierCard key={c.id} s={s} courier={c} selected={selected} onSend={() => onSend(c.id)} onFocus={() => onFocus(c.id)} onBlur={() => onFocus(null)} />)}</div>
     </section>
   </aside>
 }

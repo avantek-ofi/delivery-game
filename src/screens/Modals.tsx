@@ -74,18 +74,20 @@ export function NightPanel({ s, act, open }: { s: GameState; act: Act; open: (id
       <h2>{first ? 'Mañana abrís el negocio' : 'La ciudad duerme. Vos no.'}</h2>
       {tomorrow && <div className={`forecast forecast--${tomorrow.tone}`}><PixelIcon emoji={tomorrow.emoji} size={48} /><div><small>Pronóstico para mañana</small><b>{tomorrow.title}</b><p>{tomorrow.text}</p></div></div>}
       <div className="night-stats">
+        <span>🗺️ {E.coverage(s).length} barrios en tu zona</span>
         <span><PixelIcon emoji="📦" size={22} /> {stockUnits} en stock{incoming ? ` · ${incoming} en camino` : ''}</span>
         <span><PixelIcon emoji="🧑‍🤝‍🧑" size={22} /> {s.couriers.length} en el equipo</span>
         <span><PixelIcon emoji="💡" size={22} /> {Math.floor(s.ideas)} ideas</span>
       </div>
+      <SmartRestock s={s} act={act} />
       <div className="night-actions">
-        <button className="btn" onClick={() => open('stock')}>📦 Comprar mercadería</button>
-        <button className="btn" onClick={() => open('team')}>🧑‍🤝‍🧑 Equipo</button>
+        <button className="btn" onClick={() => open('stock')}>📦 Depósito</button>
+        <button className="btn" onClick={() => open('team')}>🛵 Flota</button>
         <button className="btn" onClick={() => open('dev')}>💡 Desarrollo</button>
-        <button className="btn" onClick={() => open('ads')}>📣 Publicidad</button>
+        <button className="btn" onClick={() => open('base')}>🏪 Local</button>
       </div>
       {stockUnits + incoming === 0 && <p className="warn">⚠️ No tenés mercadería. Comprá algo antes de abrir o vas a vivir haciendo corridas a Once.</p>}
-      <button className="btn btn--gold big" onClick={() => act(E.startDay)}>☀️ Abrir el {E.weekday(first ? s.day : s.day + 1)} {first ? s.day : s.day + 1}</button>
+      <button className="btn btn--gold big" data-tut="open-day" onClick={() => act(E.startDay)}>☀️ Abrir el {E.weekday(first ? s.day : s.day + 1)} {first ? s.day : s.day + 1}</button>
     </Filete>
   </div>
 }
@@ -110,4 +112,12 @@ export function Victory({ s, onClose }: { s: GameState; onClose: () => void }) {
       <button className="btn btn--gold big" onClick={onClose}>Seguir jugando</button>
     </div>
   </Modal>
+}
+
+function SmartRestock({ s, act }: { s: GameState; act: Act }) {
+  const plan = E.smartRestockPlan(s, .6)
+  return <div className="smart-night" data-tut="night-restock">
+    <div><b>🛒 Surtido recomendado</b><small>{plan.units ? `${plan.units} unidades de lo que más sale${s.tomorrow?.rubros ? ' (y lo que pide el pronóstico)' : ''} · ${money(plan.total)}` : 'El depósito ya está lleno o no hay plata.'}</small></div>
+    <button className="btn btn--gold" disabled={!plan.units} onClick={() => act(x => E.smartRestock(x, .6))}>Comprar</button>
+  </div>
 }
