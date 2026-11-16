@@ -166,6 +166,7 @@ export function GameScreen({ initial, onExit }: { initial: GameState; onExit: ()
         <CityMap s={s} selected={selected} onToggle={toggleOrder} focusCourier={focus} preview={preview} />
         <div className="feed">{s.log.slice(-6).map(entry => <p key={entry.id} className={`feed-${entry.tone}`}><time>{E.clock(entry.at % 1440)}</time> {entry.text}</p>)}</div>
         {s.phase === 'day' && s.today && <div className="today-chip"><PixelIcon emoji={s.today.emoji} size={20} /> <b>{s.today.title}</b>{rush.label && <em className={rush.mult > 1 ? 'rush' : ''}>{rush.mult > 1 ? '🔥 ' : ''}{rush.label}</em>}<small>{RANKS[rankOf(s)]}</small></div>}
+        {s.phase !== 'night' && s.contract && <div className={`contract-chip ${s.contract.complete ? 'done' : ''}`} title={s.contract.text}><PixelIcon emoji={s.contract.emoji} size={22} /><div><small>Contrato del día · {s.contract.client}</small><b>{s.contract.complete ? '✔ ¡Cumplido!' : s.contract.text}</b><span className="ct-bar"><i style={{ width: `${Math.min(100, s.contract.done / s.contract.target * 100)}%` }} /></span></div><em>{s.contract.done}/{s.contract.target} · {money(s.contract.reward)}</em></div>}
         {s.phase === 'night' && !s.pendingStory && !panel && <NightPanel s={s} act={act} open={openPanel} />}
       </section>
       <Operations s={s} selected={selected} onToggle={toggleOrder} onClear={() => setSelected([])} onSend={send} onRush={id => act(prev => E.rushBuy(prev, id))} onReject={id => act(prev => E.rejectOrder(prev, id))} onFocus={setFocus} />

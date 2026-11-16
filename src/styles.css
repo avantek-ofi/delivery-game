@@ -479,7 +479,7 @@ button:disabled { cursor: not-allowed; }
 .unit.focus .unit-bg { stroke: #fff; stroke-width: 3; }
 .unit.alert .unit-bg { stroke: var(--red); stroke-width: 4; animation: blink .4s steps(2) infinite; }
 .unit-name { fill: var(--gold); stroke: #000; stroke-width: 3px; paint-order: stroke; font: 700 11px var(--body); }
-.eta-chip { position: absolute; top: 52px; left: 50%; transform: translateX(-50%); background: rgba(6, 36, 51, .92); border: 2px solid var(--celeste); color: #d9f3ff; border-radius: 20px; padding: 5px 16px; font-size: 16px; z-index: 6; white-space: nowrap; box-shadow: 0 4px 14px rgba(0, 0, 0, .5); }
+.eta-chip { position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%); background: rgba(6, 36, 51, .92); border: 2px solid var(--celeste); color: #d9f3ff; border-radius: 20px; padding: 5px 16px; font-size: 16px; z-index: 6; white-space: nowrap; box-shadow: 0 4px 14px rgba(0, 0, 0, .5); }
 .eta-chip b { font-family: var(--digital); font-size: 22px; color: #fff; font-weight: 400; }
 .eta-chip.bad { border-color: var(--red); color: #ffd3cc; background: rgba(50, 10, 14, .92); }
 .map-ctrl { position: absolute; right: 10px; top: 52px; display: flex; flex-direction: column; gap: 4px; z-index: 6; }
@@ -626,3 +626,20 @@ button:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
 }
+
+/* flota: la tarjeta de cada cadete apila el vehículo abajo */
+.team-panel .people:not(.candidates) { grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); }
+.team-panel .people:not(.candidates) .person { grid-template-columns: auto 1fr; align-items: start; }
+.team-panel .people:not(.candidates) .person-veh { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; flex-wrap: wrap; border-top: 1px dashed var(--line); padding-top: 8px; }
+.train .btn { white-space: nowrap; }
+@media (max-width: 960px) { .team-panel .people:not(.candidates) { grid-template-columns: 1fr; } }
+.contract-chip { position: absolute; top: 52px; left: 10px; z-index: 6; display: flex; gap: 8px; align-items: center; background: rgba(43, 28, 10, .92); border: 2px solid #ff8c3a; border-radius: 12px; padding: 5px 10px; max-width: min(420px, 45%); }
+.contract-chip small { display: block; color: #ffcf9e; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+.contract-chip b { display: block; font-size: 14px; line-height: 1.2; }
+.contract-chip em { font-style: normal; font-family: var(--digital); font-size: 18px; color: #ffcf9e; white-space: nowrap; }
+.contract-chip.done { border-color: var(--green); background: rgba(19, 38, 27, .92); }
+.ct-bar { display: block; height: 5px; background: #2a1a0a; border-radius: 3px; margin-top: 3px; overflow: hidden; }
+.ct-bar i { display: block; height: 100%; background: #ff8c3a; }
+.contract-chip.done .ct-bar i { background: var(--green); }
+
+@media (max-width: 960px) { .contract-chip { top: auto; bottom: 8px; max-width: calc(100% - 20px); } .contract-chip b { display: none; } .eta-chip { font-size: 13px; bottom: 56px; } }

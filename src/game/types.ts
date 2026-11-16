@@ -84,6 +84,8 @@ export type PhoneMsg = { id: number; chat: string; text: string; at: number; rea
 
 export type DayStats = { day: number; revenue: number; cogs: number; expenses: number; fees: number; delivered: number; failed: number; lost: number; ratings: number[]; fansStart: number; repStart: number; tips: number; walkIn: number; cuadras: number; bestStreak: number; detail: Record<string, number> }
 
+export type Contract = { kind: 'rubro' | 'zone' | 'perfect'; client: string; emoji: string; text: string; rubro: RubroId | null; zone: Zone | null; target: number; done: number; reward: number; fans: number; complete: boolean }
+
 export type Loan = { id: string; name: string; perDay: number; daysLeft: number }
 
 export type GameState = {
@@ -134,6 +136,7 @@ export type GameState = {
   nextOrderAt: number
   nextWalkInAt: number
   streak: number
+  contract?: Contract | null
   stats: DayStats
   history: DayStats[]
   lifetime: { delivered: number; failed: number; revenue: number; profit: number; bestDay: number; maxFans: number; perfect: number; cuadras: number; bestStreak: number }

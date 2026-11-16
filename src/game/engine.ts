@@ -2,7 +2,7 @@ import { BARRIOS, REGIONS, START_BARRIOS, barrioById, distance } from './barrios
 import { PRODUCTS, RUBROS, TIERS, productById, rubroById } from './catalog'
 import { BIOS, CAMPAIGNS, CLOSE_MIN, COURIER_EMOJI, CUSTOMER_NAMES, DAY_EVENTS, FACILITY, FIRST_NAMES, GOALS, INCIDENTS, LAST_NAMES, LATE_CLOSE_MIN, LEVELS, LOANS, OPEN_MIN, ORDER_NOTES, QUALITY_LEVELS, RESEARCH, STORY, TRAINING_COST, VEHICLE_MODS, rushHour, vehicleById } from './content'
 import { pointAlong, randomPointIn, route } from './routing'
-import type { Channel, Courier, DayEvent, DayStats, Effect, GameState, LogEntry, Order, OrderKind, OrderLine, PriceTier, Product, RubroId, Stop, VehicleUnit } from './types'
+import type { Channel, Contract, Courier, DayEvent, DayStats, Effect, GameState, LogEntry, Order, OrderKind, OrderLine, PriceTier, Product, RubroId, Stop, VehicleUnit } from './types'
 
 // ---------- utilidades ----------
 const rand = (a: number, b: number) => a + Math.random() * (b - a)
@@ -364,6 +364,16 @@ const deliver = (s: GameState, courier: Courier, orderId: string, ratingMod: num
     lifetime: { ...s.lifetime, delivered: s.lifetime.delivered + 1, revenue: s.lifetime.revenue + order.total + tip, perfect: s.lifetime.perfect + (rating === 5 ? 1 : 0), bestStreak: Math.max(s.lifetime.bestStreak, streak) },
   }
   next = { ...next, rep: repValue(next) }
+  const ct = next.contract
+  if (ct && !ct.complete && (ct.kind === 'rubro' ? order.lines.some(l => productById(l.productId).rubro === ct.rubro) : ct.kind === 'zone' ? barrio.zone === ct.zone : rating === 5)) {
+    const done = ct.done + 1
+    next = { ...next, contract: { ...ct, done, complete: done >= ct.target } }
+    if (done >= ct.target) {
+      next = { ...next, capital: next.capital + ct.reward, fans: next.fans + ct.fans }
+      next = log(next, 'good', `${ct.emoji} ¡Contrato cumplido con ${ct.client}! +${money(ct.reward)} y +${ct.fans} fans.`, 'level')
+      next = msg(next, 'clientes', `${ct.client}: "¡Impecable! Ya te transferí ${money(ct.reward)}. Contá con nosotros."`)
+    }
+  }
   const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating)
   next = log(next, rating >= 4 ? 'cash' : 'bad', `${stars} ${order.customer} (${barrio.name}) +${money(income)}${tip ? ` · propina ${money(tip)}` : ''}${late ? ` · llegó ${Math.round(late)} min tarde` : ''}`, rating >= 4 ? 'cash' : 'bad')
   if (streak && streak % 5 === 0) next = log(next, 'good', `🔥 ¡Racha de ${streak} entregas perfectas! Propinas +${Math.min(50, streak * 5)}% mientras dure.`, 'level')
@@ -565,6 +575,7 @@ const endDay = (s: GameState): GameState => {
     lifetime: { ...s.lifetime, profit: s.lifetime.profit + profit, bestDay: Math.max(s.lifetime.bestDay, stats.revenue), maxFans: Math.max(s.lifetime.maxFans, s.fans) },
     debtDays: capital < 0 ? s.debtDays + 1 : 0,
   }
+  if (s.contract && !s.contract.complete) next = log(next, 'bad', `${s.contract.emoji} No llegaste con el contrato de ${s.contract.client} (${s.contract.done}/${s.contract.target}).`)
   next = msg(next, 'banco', `Débito automático del día ${s.day}: ${money(total)} (alquiler, sueldos y servicios). Saldo: ${money(capital)}.`)
   if (capital < 0) next = msg(next, 'banco', `⚠️ Su cuenta está en descubierto (${next.debtDays}/3 días). Regularice su situación.`)
   return next
@@ -613,6 +624,7 @@ export const startDay = (s: GameState): GameState => {
   const day = s.phase === 'night' && s.today === null ? s.day : s.day + 1
   const today = s.tomorrow ?? DAY_EVENTS[0]
   let next: GameState = { ...s, day, minute: OPEN_MIN, phase: 'day', speed: 1, today, tomorrow: pickDayEvent(day + 1, today.id), modifiers: s.modifiers.filter(m => m.until > day * 1440 + OPEN_MIN) }
+  next = { ...next, contract: day >= 2 && Math.random() < .7 ? makeContract(next) : null }
   next = { ...next, stats: emptyStats(next), nextOrderAt: now(next) + 3, nextWalkInAt: 0, purchases: next.purchases.map(p => p.arrivesAt < now(next) ? { ...p, arrivesAt: now(next) } : p) }
   return log(next, 'info', `☀️ ${weekday(day)} ${day}: ${today.emoji} ${today.title}. ¡A laburar!`, 'level')
 }
@@ -866,4 +878,27 @@ export const smartRestock = (s: GameState, budgetShare = .6): GameState => {
   let next = s
   plan.lines.forEach(line => { next = buyStock(next, line.productId, line.qty, 'once', true) })
   return log(next, 'cash', `🛒 Surtido recomendado: ${plan.units} unidades por ${money(plan.total)}. ${s.phase === 'day' ? 'Llega en 2 horas.' : 'Llega a primera hora.'}`, 'cash')
+}
+
+// Contratos del día: un cliente grande te pide un objetivo concreto, con premio si lo cumplís antes del cierre.
+const makeContract = (s: GameState): Contract => {
+  const crew = s.couriers.length
+  const base = 4 + crew * 2
+  const roll = Math.random()
+  const zones = [...new Set(coverage(s).map(b => b.zone))]
+  let c: Omit<Contract, 'reward' | 'fans' | 'done' | 'complete'>
+  if (roll < .45) {
+    const rubro = pick(s.rubros)
+    const r = rubroById(rubro)
+    const client = pick(['La farmacia de Flores', 'Una agencia de Palermo', 'El club del barrio', 'Una escuela de Almagro', 'Un hotel de San Telmo', 'La parroquia de Boedo', 'Una oficina de Microcentro'])
+    c = { kind: 'rubro', client, emoji: r.emoji, text: `${client} necesita ${base} entregas de ${r.name} hoy.`, rubro, zone: null, target: base }
+  } else if (roll < .8 && zones.length > 1) {
+    const zone = pick(zones)
+    const client = `La Junta Comunal de zona ${zone}`
+    c = { kind: 'zone', client, emoji: '🏛️', text: `Promoción vecinal: hacé ${base} entregas en la zona ${zone} hoy.`, rubro: null, zone, target: base }
+  } else {
+    const target = 3 + crew
+    c = { kind: 'perfect', client: 'Una revista de diseño', emoji: '📰', text: `Una revista te está evaluando: conseguí ${target} entregas de 5★ hoy.`, rubro: null, zone: null, target }
+  }
+  return { ...c, done: 0, complete: false, reward: Math.round(c.target * 11000 * s.priceIndex * (1 + s.level * .5) / 1000) * 1000, fans: c.target * 3 }
 }

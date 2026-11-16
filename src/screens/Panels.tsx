@@ -249,7 +249,7 @@ function BasePanel({ s, act }: P) {
       const locked = s.level < f.minLevel
       return <article key={f.id} className={`card ${p === null ? 'owned' : ''} ${locked ? 'locked' : ''}`}>
         <PixelIcon emoji={f.emoji} size={44} />
-        <b>{f.name} <span className="lv">{'▮'.repeat(lv)}{'▯'.repeat(f.levels.length - lv)}</span></b><small>{f.desc}</small>
+        <b>{f.name} <span className="lv">{'●'.repeat(lv)}{'○'.repeat(f.levels.length - lv)}</span></b><small>{f.desc}</small>
         <ul className="specs">{f.levels.map((l, i) => <li key={i} className={i < lv ? 'got' : ''}>{i < lv ? '✔' : `Nv ${i + 1}`} {l.text}</li>)}</ul>
         {p === null ? <em className="done">✔ Al máximo</em> : locked ? <em className="lock">🔒 {LEVELS[f.minLevel].name}</em> : <button className="btn tiny" disabled={p > s.capital} onClick={() => act(x => E.buyFacility(x, f.id))}>Nivel {lv + 1} · {money(p)}</button>}
       </article>
